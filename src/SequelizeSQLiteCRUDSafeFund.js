@@ -90,8 +90,67 @@ Loan.belongsTo(Member,{foreignKey: 'member_id'});
 Loan.hasMany(Payment,{foreignKey: 'loan_id'});
 Payment.belongsTo(Loan,{foreignKey: 'loan_id'});
 
-sequelize.sync();
 
 
-const port = process.env.PORT || 3000;
-app.listen(port,() => console.log(`BackEnd SafeFund Run http://localhost:${port}`))
+sequelize.sync({alert: true}).then(() =>{
+    const port = process.env.PORT || 3000;
+    console.log('Create Database SafeFund Success');
+    app.listen(port,() => console.log(`BackEnd SafeFund Run http://localhost:${port}`));
+}).catch(err => console.log("Can not Run Becaruse : " + err));  
+
+app.get('/members',(req,res) =>{
+    Member.findAll().then(member =>{
+        res.json(member);
+    }).catch(err =>{
+        res.status(500).send(err);
+    });
+});
+
+app.get('/members/:id',(req,res) =>{
+    Member.findByPk(req.params.id).then(member =>{
+        if(!member){
+            res.status(404).send('Member Not Found');
+        }else{
+            res.json(member);
+        }
+    }).catch(err =>{
+        res.status(500).send(err);
+    });
+});
+app.post('/members',(req,res) =>{
+    Member.create(req.body).then(member =>{
+        res.send(member);
+    }).catch(err =>{
+        res.status(500).send(err);
+    });
+});
+app.put('/members/:id',(req,res) =>{
+    Member.findByPk(req.params.id).then(member =>{
+        if(!member){
+            res.status(404).send('Member Not Found');
+        }else{
+            member.update(req.body).then(() =>{
+                res.send(member);
+            }).catch(err =>{
+                res.status(500).send(err);
+            });
+        }
+    }).catch(err =>{
+        res.status(500).send(err);
+    }); 
+});
+app.delete('/members/:id',(req,res) =>{
+    Member.findByPk(req.params.id).then(member =>{
+        if(!member){
+            res.status(404).send('Member Not Found');
+        }else{
+            member.destroy().then(() =>{
+                res.send('Member Deleted');
+            }).catch(err =>{
+                res.status(500).send(err);
+            });
+        }
+}).catch(err =>{
+    res.status(500).send(err); 
+});
+});
