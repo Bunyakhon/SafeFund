@@ -543,3 +543,133 @@ td {
     background: #cbd5e1;
     border-radius: 3px;
 }
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    margin-right: 16px;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 90;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+aside {
+    transition: transform 0.3s ease;
+}
+
+
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr); 
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    aside {
+        transform: translateX(-100%);
+    }
+
+    aside.open {
+        transform: translateX(0);
+    }
+
+    .main-wrapper {
+        margin-left: 0;
+    }
+
+    header {
+        padding: 0 16px;
+    }
+
+    .search-container {
+        display: none;
+    }
+
+    main {
+        padding: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-filter-bar {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .table-search {
+        width: 100%;
+    }
+    .pagination-bar {
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+        text-align: center;
+    }
+}
+/* =========================================
+   DARK MODE THEME
+========================================= */
+body.dark-mode {
+    --background-light: #0f172a; /* พื้นหลังจอหลัก (สีน้ำเงินเข้มมาก) */
+    --white: #1e293b; /* พื้นหลังของการ์ดและ Navbar */
+    --text-main: #f8fafc; /* สีตัวอักษรหลัก (สีขาว) */
+    --text-muted: #94a3b8; /* สีตัวอักษรรอง (สีเทา) */
+    --border-color: #334155; /* สีเส้นขอบ */
+    --deep-blue: #020617; /* สี Sidebar ให้เข้มขึ้นไปอีก */
+}
+
+/* ปรับสีส่วนประกอบอื่นๆ ให้เข้ากับ Dark Mode */
+body.dark-mode table thead tr {
+    background-color: #0f172a;
+}
+body.dark-mode tbody tr:hover {
+    background-color: #0f172a;
+}
+body.dark-mode .profile-circle {
+    background-color: #334155;
+    color: #f8fafc;
+}
+body.dark-mode input, 
+body.dark-mode select {
+    background-color: #0f172a;
+    color: var(--text-main);
+    border-color: var(--border-color);
+}
+body.dark-mode .page-btn:hover {
+    background-color: #334155;
+}
