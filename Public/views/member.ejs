@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SafeFund Member Management Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <aside>
+        <div class="branding">
+            <div class="logo-icon">
+                <span class="material-symbols-outlined">shield_person</span>
+            </div>
+            <div class="brand-text">
+                <h1>SafeFund</h1>
+                <p>Village Mgmt</p>
+            </div>
+        </div>
+        <nav>
+            <a class="nav-item" href="#">
+                <span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+            <a class="nav-item active" href="#">
+                <span class="material-symbols-outlined">group</span>
+                จัดการสมาชิก
+            </a>
+            <a class="nav-item" href="#">
+                <span class="material-symbols-outlined">account_balance_wallet</span>
+                จัดการเงินกู้
+            </a>
+            <a class="nav-item" href="#">
+                <span class="material-symbols-outlined">savings</span>
+                เงินฝากสัจจะ
+            </a>
+            <a class="nav-item" href="#">
+                <span class="material-symbols-outlined">assessment</span>
+                รายงาน
+            </a>
+        </nav>
+        <div class="user-profile-card">
+            <div class="user-box">
+                <p>Logged in as Admin</p>
+                <div class="user-info">
+                    <div class="avatar"></div>
+                    <div class="user-name">วิชญ์พล สมใจ</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <div class="main-wrapper">
+        <header>
+            <div class="header-left">
+                <h2 style="font-weight: 700; font-size: 1.125rem;">ระบบจัดการกองทุนหมู่บ้าน</h2>
+            </div>
+            <div class="header-actions">
+                <div class="search-container">
+                    <span class="material-symbols-outlined">search</span>
+                    <input placeholder="Search anything..." type="text" />
+                </div>
+                <div style="width: 1px; height: 24px; background-color: var(--border-color); margin: 0 8px;"></div>
+                <button class="icon-btn">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+                <button class="icon-btn">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="notification-dot"></span>
+                </button>
+                <button class="icon-btn logout">
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </div>
+        </header>
+        <main>
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>รายชื่อสมาชิก</h1>
+                    <p>จัดการและตรวจสอบข้อมูลสมาชิกของกองทุนหมู่บ้าน SafeFund</p>
+                </div>
+                <button class="btn-primary">
+                    <span class="material-symbols-outlined">person_add</span>
+                    เพิ่มสมาชิกใหม่
+                </button>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: rgba(10, 102, 194, 0.1); color: var(--primary);">
+                        <span class="material-symbols-outlined">groups</span>
+                    </div>
+                    <div class="stat-info">
+                        <p>สมาชิกทั้งหมด</p>
+                        <p>1,248 คน</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"
+                        style="background-color: rgba(16, 185, 129, 0.1); color: var(--emerald-green);">
+                        <span class="material-symbols-outlined">how_to_reg</span>
+                    </div>
+                    <div class="stat-info">
+                        <p>สมาชิกใหม่ (เดือนนี้)</p>
+                        <p>12 คน</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #f3f4f6; color: var(--text-muted);">
+                        <span class="material-symbols-outlined">person_off</span>
+                    </div>
+                    <div class="stat-info">
+                        <p>สมาชิกพ้นสภาพ</p>
+                        <p>5 คน</p>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <div class="card-filter-bar">
+                    <div class="rows-select">
+                        <span>แสดงผล:</span>
+                        <select>
+                            <option>10 แถว</option>
+                            <option>25 แถว</option>
+                            <option>50 แถว</option>
+                        </select>
+                    </div>
+                    <div class="table-search">
+                        <span class="material-symbols-outlined">filter_alt</span>
+                        <input placeholder="ค้นหา รหัส หรือ ชื่อสมาชิก..." type="text" />
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>รหัสสมาชิก</th>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th>ที่อยู่</th>
+                                <th>เบอร์โทรศัพท์</th>
+                                <th>สถานะ</th>
+                                <th style="text-align: right;">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="member-id">SF-001</td>
+                                <td>
+                                    <div class="member-profile">
+                                        <div class="profile-circle">SJ</div>
+                                        <span style="font-weight: 600;">นายสมชาย ใจดี</span>
+                                    </div>
+                                </td>
+                                <td
+                                    style="color: var(--text-muted); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    123 ม.1 ต.ในเมือง อ.เมือง จ.เชียงใหม่
+                                </td>
+                                <td style="color: var(--text-muted);">081-234-5678</td>
+                                <td>
+                                    <span class="status-badge status-normal">ปกติ</span>
+                                </td>
+                                <td>
+                                    <div class="actions-cell">
+                                        <button class="btn-action"><span
+                                                class="material-symbols-outlined">edit</span></button>
+                                        <button class="btn-action delete"><span
+                                                class="material-symbols-outlined">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="member-id">SF-002</td>
+                                <td>
+                                    <div class="member-profile">
+                                        <div class="profile-circle">RP</div>
+                                        <span style="font-weight: 600;">นางสาวรักเรียน เพียรธรรม</span>
+                                    </div>
+                                </td>
+                                <td
+                                    style="color: var(--text-muted); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    45/2 ถ.สุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ
+                                </td>
+                                <td style="color: var(--text-muted);">089-876-5432</td>
+                                <td>
+                                    <span class="status-badge status-normal">ปกติ</span>
+                                </td>
+                                <td>
+                                    <div class="actions-cell">
+                                        <button class="btn-action"><span
+                                                class="material-symbols-outlined">edit</span></button>
+                                        <button class="btn-action delete"><span
+                                                class="material-symbols-outlined">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="member-id">SF-003</td>
+                                <td>
+                                    <div class="member-profile">
+                                        <div class="profile-circle">BM</div>
+                                        <span style="font-weight: 600;">นายบุญมา มีเงิน</span>
+                                    </div>
+                                </td>
+                                <td
+                                    style="color: var(--text-muted); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    78 หมู่ 4 ต.บ้านใหม่ อ.ปากเกร็ด จ.นนทบุรี
+                                </td>
+                                <td style="color: var(--text-muted);">086-555-4433</td>
+                                <td>
+                                    <span class="status-badge status-pending">ค้างชำระ</span>
+                                </td>
+                                <td>
+                                    <div class="actions-cell">
+                                        <button class="btn-action"><span
+                                                class="material-symbols-outlined">edit</span></button>
+                                        <button class="btn-action delete"><span
+                                                class="material-symbols-outlined">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-bar">
+                    <div class="pagination-info">
+                        แสดงผล 1 ถึง 3 จากทั้งหมด 3 สมาชิก
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="page-btn" disabled="">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">2</button>
+                        <button class="page-btn">3</button>
+                        <button class="page-btn">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>
