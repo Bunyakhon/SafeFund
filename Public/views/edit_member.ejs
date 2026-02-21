@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>SafeFund - เพิ่มสมาชิกใหม่</title>
+    <title>SafeFund - แก้ไขข้อมูลสมาชิก</title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../css/style.css"> </head>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <aside>
         <div class="branding">
             <div class="logo-icon"><span class="material-symbols-outlined">shield_person</span></div>
@@ -34,6 +38,7 @@
             </div>
         </div>
     </aside>
+
     <div class="main-wrapper">
         <header>
             <div class="header-left" style="display: flex; align-items: center;">
@@ -46,54 +51,60 @@
                 </button>
             </div>
         </header>
+
         <main>
             <div class="page-header">
                 <div class="page-title">
-                    <h1>ลงทะเบียนสมาชิกใหม่</h1>
-                    <p>กรุณากรอกข้อมูลส่วนตัวเพื่อลงทะเบียนเข้าสู่ระบบกองทุนหมู่บ้าน SafeFund</p>
+                    <h1>แก้ไขข้อมูลสมาชิก</h1>
+                    <p>อัปเดตข้อมูลส่วนตัวของสมาชิกในระบบ SafeFund</p>
                 </div>
             </div>
+
             <div class="content-card form-card">
                 <div class="form-header-icon">
-                    <div class="icon-circle"><span class="material-symbols-outlined">person_add</span></div>
+                    <div class="icon-circle"><span class="material-symbols-outlined">manage_accounts</span></div>
                     <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin: 0;">ข้อมูลสมาชิก</h2>
                 </div>
-                <form action="/create-member" method="POST">
+
+                <form action="/update-member/<%= member.member_id %>" method="POST">
                     <div class="form-row">
                         <div class="form-group">
                             <label>รหัสสมาชิก (Member ID)</label>
-                            <input type="text" value="SF-AUTO" readonly class="input-readonly">
-                        </div>
-                        <div class="form-group">
-                            <label>วันที่ลงทะเบียน</label>
-                            <input type="text" value="<%= new Date().toLocaleDateString('th-TH') %>" readonly class="input-readonly">
+                            <input type="text" value="SF-<%= member.member_id %>" readonly class="input-readonly">
                         </div>
                     </div>
+
                     <div class="form-group">
                         <label>ชื่อ-นามสกุล <span class="text-danger">*</span></label>
-                        <input type="text" name="member_name" required placeholder="เช่น นายสมชาย ใจดี">
+                        <input type="text" name="member_name" value="<%= member.member_name %>" required>
                     </div>
+
                     <div class="form-group">
                         <label>เบอร์โทรศัพท์ <span class="text-danger">*</span></label>
-                        <input type="tel" name="phone" required placeholder="08x-xxx-xxxx">
+                        <input type="tel" name="phone" value="<%= member.phone %>" required>
                     </div>
+
                     <div class="form-group">
                         <label>ที่อยู่ปัจจุบัน <span class="text-danger">*</span></label>
-                        <textarea name="address" rows="3" required placeholder="บ้านเลขที่, ถนน, แขวง/ตำบล..."></textarea>
+                        <textarea name="address" rows="3" required><%= member.address %></textarea>
                     </div>
+
                     <div class="form-divider"></div>
+
                     <div class="form-actions">
                         <button type="button" class="btn-cancel" onclick="window.location.href='/'">
                             ยกเลิก
                         </button>
                         <button type="submit" class="btn-submit">
-                            <span class="material-symbols-outlined">save</span> บันทึกข้อมูลสมาชิก
+                            <span class="material-symbols-outlined">save</span> บันทึกการเปลี่ยนแปลง
                         </button>
                     </div>
                 </form>
             </div>
         </main>
     </div>
-    <script src="../js/member-management.js"></script>
+
+   <script src="../js/member-management.js"></script>
 </body>
+
 </html>

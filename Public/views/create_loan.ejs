@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SafeFund - สร้างสัญญาเงินกู้ใหม่</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/style.css"> 
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside>
+        <div class="branding">
+            <div class="logo-icon"><span class="material-symbols-outlined">shield_person</span></div>
+            <div class="brand-text">
+                <h1>SafeFund</h1>
+                <p>Village Mgmt</p>
+            </div>
+        </div>
+        <nav>
+            <a class="nav-item" href="#"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+            <a class="nav-item" href="/"><span class="material-symbols-outlined">group</span> จัดการสมาชิก</a>
+            <a class="nav-item active" href="/loans"><span class="material-symbols-outlined">account_balance_wallet</span> จัดการเงินกู้</a>
+            <a class="nav-item" href="#"><span class="material-symbols-outlined">savings</span> เงินฝากสัจจะ</a>
+            <a class="nav-item" href="#"><span class="material-symbols-outlined">assessment</span> รายงาน</a>
+        </nav>
+        <div class="user-profile-card">
+            <div class="user-box">
+                <p>Logged in as Admin</p>
+                <div class="user-info">
+                    <div class="avatar"></div>
+                    <div class="user-name">วิชญ์พล สมใจ</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header>
+            <div class="header-left" style="display: flex; align-items: center;">
+                <button class="mobile-menu-btn" id="mobileMenuBtn"><span class="material-symbols-outlined">menu</span></button>
+                <h2 style="font-weight: 700; font-size: 1.125rem;">ระบบจัดการกองทุนหมู่บ้าน</h2>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="darkModeBtn" title="สลับโหมดมืด/สว่าง">
+                    <span class="material-symbols-outlined" id="darkModeIcon">dark_mode</span>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>สร้างสัญญาเงินกู้ใหม่</h1>
+                    <p>กรุณากรอกรายละเอียดสัญญาเงินกู้เพื่อบันทึกเข้าสู่ระบบกองทุนหมู่บ้าน SafeFund</p>
+                </div>
+            </div>
+
+            <div class="content-card form-card">
+                <div class="form-header-icon">
+                    <div class="icon-circle"><span class="material-symbols-outlined">add_card</span></div>
+                    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin: 0;">ข้อมูลสัญญาเงินกู้</h2>
+                </div>
+
+                <form action="/create-loan" method="POST">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>รหัสสัญญา (Loan ID)</label>
+                            <input type="text" value="LN-AUTO" readonly class="input-readonly">
+                        </div>
+                        <div class="form-group">
+                            <label>วันที่ทำสัญญา</label>
+                            <input type="text" value="<%= new Date().toLocaleDateString('th-TH') %>" readonly class="input-readonly">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>เลือกสมาชิกผู้กู้ <span class="text-danger">*</span></label>
+                        <select name="member_id" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main);">
+                            <option value="">-- กรุณาเลือกสมาชิกในระบบ --</option>
+                            <% if (members && members.length > 0) { %>
+                                <% members.forEach(function(member) { %>
+                                    <option value="<%= member.member_id %>">
+                                        SF: <%= member.member_id %> | <%= member.member_name %>
+                                    </option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ยอดเงินกู้ (บาท) <span class="text-danger">*</span></label>
+                            <input type="number" name="loan_amount" step="0.01" required placeholder="เช่น 50000">
+                        </div>
+                        <div class="form-group">
+                            <label>อัตราดอกเบี้ย (%) <span class="text-danger">*</span></label>
+                            <input type="number" name="interest_rate" step="0.1" required placeholder="เช่น 5.0">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ระยะเวลาผ่อนชำระ (เดือน) <span class="text-danger">*</span></label>
+                            <input type="number" name="duration_months" value="12" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>สถานะสัญญา</label>
+                            <select name="status" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main);">
+                                <option value="รอพิจารณา">รอพิจารณา</option>
+                                <option value="อนุมัติแล้ว">อนุมัติแล้ว</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-divider"></div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="window.location.href='/loans'">
+                            ยกเลิก
+                        </button>
+                        <button type="submit" class="btn-submit">
+                            <span class="material-symbols-outlined">save</span> บันทึกสัญญาเงินกู้
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/member-management.js"></script>
+</body>
+</html>

@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "format": "prettier --write *.js",
-    "start": "node src/SequelizeSQLiteCRUDSafeFund.js",
-    "dev": "nodemon src/SequelizeSQLiteCRUDSafeFund.js",
-    
+    "back": "nodemon src/SequelizeSQLiteCRUDSafeFund.js",
+    "front": "nodemon AxiosNodeHtml.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
