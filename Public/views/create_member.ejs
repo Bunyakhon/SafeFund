@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SafeFund - เพิ่มสมาชิกใหม่</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+     <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside>
+        <div class="branding">
+            <div class="logo-icon"><span class="material-symbols-outlined">shield_person</span></div>
+            <div class="brand-text">
+                <h1>SafeFund</h1>
+                <p>Village Mgmt</p>
+            </div>
+        </div>
+        <nav>
+            <a class="nav-item" href="#"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+            <a class="nav-item active" href="/members-dashboard"><span class="material-symbols-outlined">group</span> จัดการสมาชิก</a>
+            <a class="nav-item" href="#"><span class="material-symbols-outlined">account_balance_wallet</span> จัดการเงินกู้</a>
+            <a class="nav-item" href="#"><span class="material-symbols-outlined">savings</span> เงินฝากสัจจะ</a>
+            <a class="nav-item" href="#"><span class="material-symbols-outlined">assessment</span> รายงาน</a>
+        </nav>
+        <div class="user-profile-card">
+            <div class="user-box">
+                <p>Logged in as Admin</p>
+                <div class="user-info">
+                    <div class="avatar"></div>
+                    <div class="user-name">วิชญ์พล สมใจ</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header>
+            <div class="header-left" style="display: flex; align-items: center;">
+                <button class="mobile-menu-btn" id="mobileMenuBtn"><span class="material-symbols-outlined">menu</span></button>
+                <h2 style="font-weight: 700; font-size: 1.125rem;">ระบบจัดการกองทุนหมู่บ้าน</h2>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="darkModeBtn" title="สลับโหมดมืด/สว่าง">
+                    <span class="material-symbols-outlined" id="darkModeIcon">dark_mode</span>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>เพิ่มสมาชิกใหม่</h1>
+                    <p>กรุณากรอกข้อมูลส่วนตัวของสมาชิกให้ครบถ้วนเพื่อลงทะเบียนเข้าสู่ระบบ</p>
+                </div>
+            </div>
+
+            <div class="content-card form-card">
+                <div class="form-header-icon">
+                    <div class="icon-circle"><span class="material-symbols-outlined">person_add</span></div>
+                    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin: 0;">ข้อมูลสมาชิก</h2>
+                </div>
+
+                <form action="/create-member" method="POST">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>รหัสสมาชิก (Member ID)</label>
+                            <input type="text" value="SF-AUTO" readonly class="input-readonly">
+                        </div>
+                        <div class="form-group">
+                            <label>สถานะเริ่มต้น</label>
+                            <select name="status">
+                                <option value="normal">ปกติ (Normal)</option>
+                                <option value="pending">รอตรวจสอบ (Pending)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ชื่อ-นามสกุล <span class="text-danger">*</span></label>
+                        <input type="text" name="member_name" required placeholder="ตัวอย่าง: นายสมชาย ใจดี">
+                    </div>
+
+                    <div class="form-group">
+                        <label>เบอร์โทรศัพท์ <span class="text-danger">*</span></label>
+                        <input type="tel" name="phone" required placeholder="081-234-5678">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ที่อยู่ <span class="text-danger">*</span></label>
+                        <textarea name="address" rows="3" required placeholder="บ้านเลขที่, ถนน, ตำบล, อำเภอ..."></textarea>
+                    </div>
+
+                    <div class="form-divider"></div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="window.location.href='/members-dashboard'">
+                            <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle;">close</span> ยกเลิก
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle;">save</span> บันทึกข้อมูล
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ระบบเมนูมือถือ
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.querySelector('aside');
+        const overlay = document.getElementById('sidebarOverlay');
+        function toggleSidebar() { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); }
+        if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleSidebar);
+        if(overlay) overlay.addEventListener('click', toggleSidebar);
+
+        // ระบบ Dark Mode
+        const darkModeBtn = document.getElementById('darkModeBtn');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        if (localStorage.getItem('safefund_theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            if(darkModeIcon) darkModeIcon.textContent = 'light_mode';
+        }
+        if(darkModeBtn) {
+            darkModeBtn.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                if (document.body.classList.contains('dark-mode')) {
+                    darkModeIcon.textContent = 'light_mode';
+                    localStorage.setItem('safefund_theme', 'dark');
+                } else {
+                    darkModeIcon.textContent = 'dark_mode';
+                    localStorage.setItem('safefund_theme', 'light');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

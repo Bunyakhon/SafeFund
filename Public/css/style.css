@@ -673,3 +673,60 @@ body.dark-mode select {
 body.dark-mode .page-btn:hover {
     background-color: #334155;
 }
+/* =========================================
+   FORM SPECIFIC STYLES (สำหรับหน้าเพิ่มสมาชิก)
+========================================= */
+.form-card {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.form-header-icon {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.form-header-icon .icon-circle {
+    background-color: rgba(10, 102, 194, 0.1);
+    color: var(--primary);
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.text-danger {
+    color: #ef4444;
+}
+
+.input-readonly {
+    background-color: #f1f5f9 !important;
+    color: #64748b !important;
+    cursor: not-allowed;
+    border-color: #cbd5e1 !important;
+}
+
+.form-divider {
+    border-top: 1px dashed var(--border-color);
+    margin: 24px 0;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Responsive สำหรับฟอร์ม */
+@media (max-width: 640px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}

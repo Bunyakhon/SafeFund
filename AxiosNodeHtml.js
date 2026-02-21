@@ -27,8 +27,25 @@ app.get("/", async (req, res) => {
     }
 });
 
-
+app.get("/create-member", (req, res) => {
+    res.render("create_member"); 
+});
+app.post("/create-member", async (req, res) => {
+    try {
+        const newMemberData = {
+            member_name: req.body.member_name,
+            address: req.body.address,
+            phone: req.body.phone
+        };
+        
+        await axios.post(base_url + '/members', newMemberData);
+        res.redirect("/members-dashboard"); 
+    } catch (err) {
+        console.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล:", err.message);
+        res.status(500).send('Error Create Member');
+    }
+});
 
 app.listen(frontend_port, () => {
-    console.log(`BackEnd SafeFund Run http://localhost:${frontend_port}/members-dashboard`);
+    console.log(`BackEnd SafeFund Run http://localhost:${frontend_port}/`);
 });
