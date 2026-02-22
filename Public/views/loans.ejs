@@ -6,7 +6,8 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>SafeFund - จัดการเงินกู้</title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
@@ -24,7 +25,8 @@
         <nav>
             <a class="nav-item" href="#"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
             <a class="nav-item" href="/"><span class="material-symbols-outlined">group</span> จัดการสมาชิก</a>
-            <a class="nav-item active" href="/loans"><span class="material-symbols-outlined">account_balance_wallet</span> จัดการเงินกู้</a>
+            <a class="nav-item active" href="/loans"><span
+                    class="material-symbols-outlined">account_balance_wallet</span> จัดการเงินกู้</a>
             <a class="nav-item" href="/savings"><span class="material-symbols-outlined">savings</span> เงินฝากสัจจะ</a>
             <a class="nav-item" href="#"><span class="material-symbols-outlined">assessment</span> รายงาน</a>
         </nav>
@@ -42,7 +44,8 @@
     <div class="main-wrapper">
         <header>
             <div class="header-left">
-                <button class="mobile-menu-btn" id="mobileMenuBtn"><span class="material-symbols-outlined">menu</span></button>
+                <button class="mobile-menu-btn" id="mobileMenuBtn"><span
+                        class="material-symbols-outlined">menu</span></button>
                 <h2>ระบบจัดการกองทุนหมู่บ้าน</h2>
             </div>
             <div class="header-actions">
@@ -63,97 +66,156 @@
                 </button>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(10, 102, 194, 0.1); color: var(--primary);">
-                        <span class="material-symbols-outlined">payments</span>
+            <% let totalLoanAmount=0; let totalPaidAmount=0; let totalRemainingAmount=0; if (loans && loans.length> 0) {
+                totalLoanAmount = loans.reduce((acc, curr) => acc + parseFloat(curr.loan_amount), 0);
+
+                loans.forEach(loan => {
+                if (loan.payments) {
+                totalPaidAmount += loan.payments
+                .filter(p => p.status === 'Paid')
+                .reduce((acc, p) => acc + parseFloat(p.amount), 0);
+
+                totalRemainingAmount += loan.payments
+                .filter(p => p.status !== 'Paid')
+                .reduce((acc, p) => acc + parseFloat(p.amount), 0);
+                }
+                });
+                }
+                %>
+
+                <div class="stats-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
+                    <div class="stat-card">
+                        <div class="stat-icon"
+                            style="background-color: rgba(10, 102, 194, 0.1); color: var(--primary);">
+                            <span class="material-symbols-outlined">account_balance</span>
+                        </div>
+                        <div class="stat-info">
+                            <p>ยอดเงินกู้ทั้งหมด (เงินต้น)</p>
+                            <p style="font-size: 1.5rem; font-weight: 800;">
+                                ฿ <%= totalLoanAmount.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                            </p>
+                        </div>
                     </div>
-                    <div class="stat-info">
-                        <p>ยอดเงินกู้ทั้งหมด</p>
-                        <p style="font-size: 1.5rem; font-weight: 800;">
-                            ฿ <%= loans ? loans.reduce((acc, curr)=> acc + parseFloat(curr.loan_amount), 0).toLocaleString() : 0 %>
-                        </p>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: rgba(40, 167, 69, 0.1); color: #28a745;">
+                            <span class="material-symbols-outlined">payments</span>
+                        </div>
+                        <div class="stat-info">
+                            <p>ยอดชำระมาแล้วทั้งหมด</p>
+                            <p style="font-size: 1.5rem; font-weight: 800; color: #28a745;">
+                                ฿ <%= totalPaidAmount.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
+                            <span class="material-symbols-outlined">pending_actions</span>
+                        </div>
+                        <div class="stat-info">
+                            <p>ยอดหนี้คงเหลือทั้งหมด</p>
+                            <p style="font-size: 1.5rem; font-weight: 800; color: #dc3545;">
+                                ฿ <%= totalRemainingAmount.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="content-card">
-                <div class="card-filter-bar">
-                    <div class="rows-select">
-                        <span>แสดงผล:</span>
-                        <select id="rowSelect">
-                            <option value="10">10 แถว</option>
-                            <option value="25">25 แถว</option>
-                            <option value="all">ทั้งหมด</option>
-                        </select>
+                <div class="content-card">
+                    <div class="card-filter-bar">
+                        <div class="rows-select">
+                            <span>แสดงผล:</span>
+                            <select id="rowSelect">
+                                <option value="10">10 แถว</option>
+                                <option value="25">25 แถว</option>
+                                <option value="all">ทั้งหมด</option>
+                            </select>
+                        </div>
+                        <div class="table-search">
+                            <span class="material-symbols-outlined">filter_alt</span>
+                            <input id="searchInput" placeholder="ค้นหา รหัส หรือ ชื่อสมาชิก..." type="text" />
+                        </div>
                     </div>
-                    <div class="table-search">
-                        <span class="material-symbols-outlined">filter_alt</span>
-                        <input id="searchInput" placeholder="ค้นหา รหัส หรือ ชื่อสมาชิก..." type="text" />
-                    </div>
-                </div>
 
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>รหัสสัญญา</th>
-                                <th>ผู้กู้</th>
-                                <th>ยอดกู้</th>
-                                <th>ดอกเบี้ย</th>
-                                <th>ระยะเวลา</th>
-                                <th>สถานะ</th>
-                                <th style="text-align: right;">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% if (loans && loans.length > 0) { %>
-                                <% loans.forEach(function(loan) { %>
-                                    <tr>
-                                        <td class="member-id">LN-<%= loan.loan_id %></td>
-                                        <td>
-                                            <span style="font-weight: 600;">
-                                                <%= loan.Member ? loan.Member.member_name : 'ไม่ระบุชื่อ' %>
-                                            </span>
-                                        </td>
-                                        <td style="font-weight: 700; color: var(--primary);">
-                                            ฿ <%= parseFloat(loan.loan_amount).toLocaleString() %>
-                                        </td>
-                                        <td><%= loan.interest_rate %>%</td>
-                                        <td><%= loan.duration_months %> เดือน</td>
-                                        <td>
-                                            <span class="status-badge 
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>รหัสสัญญา</th>
+                                    <th>ผู้กู้</th>
+                                    <th>ยอดกู้</th>
+                                    <th>ดอกเบี้ย</th>
+                                    <th>ระยะเวลา</th>
+                                    <th>สถานะ</th>
+                                    <th style="text-align: right;">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (loans && loans.length> 0) { %>
+                                    <% loans.forEach(function(loan) { %>
+                                        <tr>
+                                            <td class="member-id">LN-<%= loan.loan_id %>
+                                            </td>
+                                            <td>
+                                                <span style="font-weight: 600;">
+                                                    <%= loan.Member ? loan.Member.member_name : 'ไม่ระบุชื่อ' %>
+                                                </span>
+                                            </td>
+                                            <td style="font-weight: 700; color: var(--primary);">
+                                                ฿ <%= parseFloat(loan.loan_amount).toLocaleString() %>
+                                            </td>
+                                            <td>
+                                                <%= loan.interest_rate %>%
+                                            </td>
+                                            <td>
+                                                <%= loan.duration_months %> เดือน
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="status-badge 
                                                 <%= loan.status === 'ปิดยอดแล้ว' ? 'status-normal' : 
                                                     loan.status === 'รอพิจารณา' ? 'status-warning' : 'status-pending' %>">
-                                                <%= loan.status %>
-                                            </span>
-                                        </td>
-                                        <td class="actions-cell">
-                                            <a href="/edit-loan/<%= loan.loan_id %>">
-                                                <button class="btn-action" title="แก้ไข"><span class="material-symbols-outlined">edit</span></button>
-                                            </a>
-                                            <a href="/delete-loan/<%= loan.loan_id %>" onclick="return confirm('ยืนยันการลบสัญญานี้?');">
-                                                <button class="btn-action delete" title="ลบ"><span class="material-symbols-outlined">delete</span></button>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                <% }); %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
-                                        ไม่พบข้อมูลสัญญาเงินกู้
-                                    </td>
-                                </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                </div>
+                                                    <%= loan.status %>
+                                                </span>
+                                            </td>
+                                            <td class="actions-cell">
+                                                <a href="/loan-history/<%= loan.loan_id %>">
+                                                    <button class="btn-action" title="ประวัติการชำระเงิน"
+                                                        style="color: #0a66c2;">
+                                                        <span class="material-symbols-outlined">history</span>
+                                                    </button>
+                                                </a>
+                                                <a href="/edit-loan/<%= loan.loan_id %>">
+                                                    <button class="btn-action" title="แก้ไข"><span
+                                                            class="material-symbols-outlined">edit</span></button>
+                                                </a>
+                                                <a href="/delete-loan/<%= loan.loan_id %>"
+                                                    onclick="return confirm('ยืนยันการลบสัญญานี้?');">
+                                                    <button class="btn-action delete" title="ลบ"><span
+                                                            class="material-symbols-outlined">delete</span></button>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="7"
+                                                        style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                                        ไม่พบข้อมูลสัญญาเงินกู้
+                                                    </td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
 
-                <div class="pagination-bar">
-                    <div class="pagination-info" id="paginationInfo"></div>
-                    <div class="pagination-controls" id="paginationControls"></div>
+                    <div class="pagination-bar">
+                        <div class="pagination-info" id="paginationInfo"></div>
+                        <div class="pagination-controls" id="paginationControls"></div>
+                    </div>
                 </div>
-            </div>
         </main>
     </div>
 

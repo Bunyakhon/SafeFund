@@ -79,6 +79,15 @@ const Payment = sequelize.define("payment", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  period: { 
+    type: Sequelize.INTEGER,
+    allowNull: true,
+  },
+  status: { 
+    type: Sequelize.STRING,
+    defaultValue: 'Pending',
+    allowNull: true,
+  },
 });
 
 const Saving = sequelize.define("saving", {
@@ -172,40 +181,144 @@ app.delete("/members/:id", (req, res) => {
 });
 
 // --- API Routes สำหรับ Loans ---
+
 app.get("/loans", (req, res) => {
-  Loan.findAll({ include: [Member] })
+  Loan.findAll({ 
+    include: [Member, Payment] 
+  })
     .then((loans) => res.json(loans))
     .catch((err) => res.status(500).send(err));
 });
 
 app.get("/loans/:id", (req, res) => {
-  Loan.findByPk(req.params.id, { include: [Member] })
-    .then((loan) => {
-      if (!loan) res.status(404).send("Loan Contract Not Found");
-      else res.json(loan);
-    })
-    .catch((err) => res.status(500).send(err));
-});
-
-app.post("/loans", (req, res) => {
-  Loan.create(req.body)
-    .then((loan) => res.send(loan))
-    .catch((err) => res.status(500).send(err));
-});
-
-app.put("/loans/:id", (req, res) => {
-  Loan.findByPk(req.params.id)
+  Loan.findByPk(req.params.id, { 
+    include: [
+      { model: Member }, 
+      { model: Payment } 
+    ]
+  })
     .then((loan) => {
       if (!loan) res.status(404).send("Loan Contract Not Found");
       else {
-        loan.update(req.body)
-          .then(() => res.send(loan))
-          .catch((err) => res.status(500).send(err));
+        // ทำการ Sort ข้อมูล Payment ตามงวดที่ในระดับ JavaScript แทนเพื่อความชัวร์
+        if (loan.payments) {
+            loan.payments.sort((a, b) => a.period - b.period);
+        }
+        res.json(loan);
       }
     })
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      console.error(err); // ดู Error ที่ Console ของ Backend
+      res.status(500).send(err.message);
+    });
 });
 
+app.post("/loans", async (req, res) => {
+  try {
+    const loan = await Loan.create(req.body);
+    const principal = parseFloat(loan.loan_amount);
+    const interestRate = parseFloat(loan.interest_rate) / 100;
+    const months = parseInt(loan.duration_months);
+    const totalInterest = principal * interestRate;
+    const totalAmount = principal + totalInterest;
+    const monthlyPayment = (totalAmount / months).toFixed(2);
+    const payments = [];
+    const startDate = new Date();
+
+    for (let i = 1; i <= months; i++) {
+      const dueDate = new Date(startDate);
+      dueDate.setMonth(startDate.getMonth() + i);
+
+      payments.push({
+        loan_id: loan.loan_id,
+        amount: monthlyPayment,
+        period: i,
+        payment_date: dueDate.toISOString().split('T')[0], 
+        status: 'Pending'
+      });
+    }
+
+    await Payment.bulkCreate(payments);
+
+    res.status(201).send(loan);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err.message);
+  }
+});
+
+app.put("/loans/:id", async (req, res) => {
+  try {
+    const loan = await Loan.findByPk(req.params.id);
+    if (!loan) return res.status(404).send("Loan Contract Not Found");
+    await loan.update(req.body);
+    await Payment.destroy({ where: { loan_id: loan.loan_id } });
+    const principal = parseFloat(loan.loan_amount);
+    const interestRate = parseFloat(loan.interest_rate) / 100;
+    const months = parseInt(loan.duration_months);
+
+    const totalInterest = principal * interestRate;
+    const totalAmount = principal + totalInterest;
+    const monthlyPayment = (totalAmount / months).toFixed(2);
+
+    const payments = [];
+    const startDate = new Date(loan.createdAt); 
+
+    for (let i = 1; i <= months; i++) {
+      const dueDate = new Date(startDate);
+      dueDate.setMonth(startDate.getMonth() + i);
+
+      payments.push({
+        loan_id: loan.loan_id,
+        amount: monthlyPayment,
+        period: i,
+        payment_date: dueDate.toISOString().split('T')[0],
+        status: 'Pending'
+      });
+    }
+
+    await Payment.bulkCreate(payments);
+
+    res.send(loan);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err.message);
+  }
+});
+app.put("/payments/:id/confirm", async (req, res) => {
+    try {
+        // 1. ค้นหารายการชำระเงินที่ต้องการยืนยัน
+        const payment = await Payment.findByPk(req.params.id);
+        if (!payment) return res.status(404).send("ไม่พบข้อมูลการชำระเงิน");
+        
+        // 2. อัปเดตสถานะงวดนี้เป็น 'Paid'
+        await payment.update({ status: 'Paid' });
+
+        // 3. ตรวจสอบงวดชำระทั้งหมดของสัญญานี้ (loan_id)
+        const allPayments = await Payment.findAll({
+            where: { loan_id: payment.loan_id }
+        });
+
+        // 4. เช็คว่าทุกงวดเปลี่ยนเป็น 'Paid' ครบหรือยัง
+        const isAllPaid = allPayments.every(p => p.status === 'Paid');
+
+        // 5. ถ้าจ่ายครบทุกงวดแล้ว ให้ไปอัปเดตตาราง loans
+        if (isAllPaid) {
+            await Loan.update(
+                { status: 'ปิดยอดแล้ว' }, 
+                { where: { loan_id: payment.loan_id } }
+            );
+        }
+
+        res.send({ 
+            payment, 
+            message: isAllPaid ? "ชำระครบทุกงวดแล้ว ระบบปิดยอดสัญญาอัตโนมัติ" : "ยืนยันการชำระเงินสำเร็จ" 
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err.message);
+    }
+});
 app.delete("/loans/:id", (req, res) => {
   Loan.findByPk(req.params.id)
     .then((loan) => {

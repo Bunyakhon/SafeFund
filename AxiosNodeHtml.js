@@ -184,6 +184,27 @@ app.get("/savings", async (req, res) => {
         res.render("savings", { members: [], savings: [] });
     }
 });
+app.get("/loan-history/:id", async (req, res) => {
+    try {
+        const response = await axios.get(base_url + '/loans/' + req.params.id);
+        res.render("loan_history", { loan: response.data });
+    } catch (err) {
+        console.error("Error loading loan history:", err.message);
+        res.redirect("/loans");
+    }
+});
+app.get("/confirm-payment/:payment_id/:loan_id", async (req, res) => {
+    try {
+        const { payment_id, loan_id } = req.params;
+        // เรียก API ไปที่ Backend
+        await axios.put(`${base_url}/payments/${payment_id}/confirm`);
+        // เมื่อสำเร็จ ให้กลับไปหน้าประวัติเดิม
+        res.redirect("/loan-history/" + loan_id);
+    } catch (err) {
+        console.error("Error confirming payment:", err.message);
+        res.status(500).send("ยืนยันการชำระเงินล้มเหลว");
+    }
+});
 
 // 2. หน้าแสดงประวัติการฝากเงินเฉพาะบุคคล
 app.get("/savings/history/:id", async (req, res) => {
@@ -204,18 +225,10 @@ app.get("/savings/history/:id", async (req, res) => {
 // 3. หน้าฟอร์มบันทึกการฝากเงินใหม่
 app.get("/create-saving", async (req, res) => {
     try {
-        // 1. ดึงสมาชิกทั้งหมด
-        const membersRes = await axios.get(`${base_url}/members`);
-        // 2. ดึงประวัติการฝากทั้งหมด
-        const savingsRes = await axios.get(`${base_url}/savings`); 
-        
-        res.render("create_saving", { 
-            members: membersRes.data, 
-            savings: savingsRes.data 
-        });
-    } catch (err) {
-        console.error(err);
-        res.redirect("/savings");
+        const response = await axios.get(`${base_url}/members`);
+        res.render("create_saving", { members: response.data });
+    } catch (err) { 
+        res.status(500).send("Error loading create form"); 
     }
 });
 app.get("/create-saving", async (req, res) => {

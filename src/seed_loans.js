@@ -7,10 +7,10 @@ const dbPath = path.resolve(__dirname, "../Database", "DBSafeFund.sqlite");
 const sequelize = new Sequelize({
     dialect: "sqlite",
     storage: dbPath,
-    logging: false // ปิด log เพื่อให้เห็นสรุปชัดเจน
+    logging: false
 });
 
-// --- นิยาม Model ---
+// --- นิยาม Model ให้ตรงกับ Backend ---
 const Member = sequelize.define("Member", {
     member_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     member_name: { type: DataTypes.STRING, allowNull: false },
@@ -27,6 +27,15 @@ const Loan = sequelize.define("loan", {
     status: { type: DataTypes.STRING, allowNull: false },
 });
 
+const Payment = sequelize.define("payment", {
+    payment_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    loan_id: { type: DataTypes.INTEGER, allowNull: false },
+    amount: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+    payment_date: { type: DataTypes.STRING, allowNull: false },
+    period: { type: DataTypes.INTEGER, allowNull: false },
+    status: { type: DataTypes.STRING, defaultValue: 'Pending' },
+});
+
 const Saving = sequelize.define("saving", {
     saving_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     member_id: { type: DataTypes.INTEGER, allowNull: false },
@@ -34,17 +43,17 @@ const Saving = sequelize.define("saving", {
     deposit_date: { type: DataTypes.STRING, allowNull: false },
 });
 
-// --- คลังข้อมูลสมมติสำหรับสุ่ม ---
-const firstNames = ["สมชาย", "สมศรี", "วิชัย", "กิตติ", "นงลักษณ์", "ประเสริฐ", "วรวุฒิ", "อัญชลี", "ธนพล", "มณีรัตน์", "สัญชัย", "พิมล", "บุญส่ง", "รัตนา", "เฉลิม"];
-const lastNames = ["ใจดี", "มีสุข", "รักไทย", "แสงสว่าง", "เจริญพร", "รุ่งเรือง", "มั่นคง", "ศรีสวัสดิ์", "พูนทรัพย์", "แก้วมณี", "ทองดี", "เปรมปรีดิ์"];
+// --- คลังข้อมูลสมมติ ---
+const firstNames = ["สมชาย", "สมศรี", "วิชัย", "กิตติ", "นงลักษณ์", "ประเสริฐ", "วรวุฒิ", "อัญชลี", "ธนพล", "มณีรัตน์", "สัญชัย", "พิมล", "บุญส่ง", "รัตนา", "เฉลิม", "เอกราช", "อรอนงค์", "เกรียงไกร", "สุรพล", "วิภา"];
+const lastNames = ["ใจดี", "มีสุข", "รักไทย", "แสงสว่าง", "เจริญพร", "รุ่งเรือง", "มั่นคง", "ศรีสวัสดิ์", "พูนทรัพย์", "แก้วมณี", "ทองดี", "เปรมปรีดิ์", "รักษาดี", "สิริโชติ", "บุญหนัก"];
 const districts = ["อ.เมือง", "อ.กบินทร์บุรี", "อ.ศรีมหาโพธิ", "อ.ประจันตคาม", "อ.นาดี"];
 
 async function start() {
     try {
-        console.log("🛠️ กำลังล้างและสร้างฐานข้อมูลใหม่ที่:", dbPath);
+        console.log("🛠️ กำลังล้างและสร้างฐานข้อมูลใหม่...");
         await sequelize.sync({ force: true });
 
-        // 1. สร้างสมาชิก 50 คนแบบสุ่มชื่อ
+        // 1. สร้างสมาชิก 50 คน
         const membersData = [];
         for (let i = 0; i < 50; i++) {
             const fname = firstNames[Math.floor(Math.random() * firstNames.length)];
@@ -53,51 +62,68 @@ async function start() {
             membersData.push({
                 member_name: `${fname} ${lname}`,
                 address: `${Math.floor(Math.random() * 200) + 1} ม.${Math.floor(Math.random() * 10) + 1} ต.หน้าเมือง ${dist} จ.ปราจีนบุรี`,
-                phone: `08${Math.floor(Math.random() * 9) + 1}-${Math.floor(Math.random() * 9000) + 1000}-${Math.floor(Math.random() * 9000) + 1000}`
+                phone: `08${Math.floor(Math.random() * 9) + 1}-${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`
             });
         }
         const createdMembers = await Member.bulkCreate(membersData);
-        console.log("✅ ลงข้อมูลสมาชิก 50 คนสำเร็จ");
+        console.log("✅ สมาชิก 50 คน: เรียบร้อย");
 
-        // 2. สร้างเงินกู้ 10 รายการ (สุ่มจากสมาชิก 10 คน)
-        const loansData = [];
-        const loanStatuses = ["อนุมัติแล้ว", "รอพิจารณา", "ชำระครบแล้ว"];
-        for (let i = 0; i < 10; i++) {
-            loansData.push({
-                member_id: createdMembers[i].member_id, // เลือก 10 คนแรกมาเป็นตัวอย่างกู้
-                loan_amount: (Math.random() * 40000 + 10000).toFixed(2),
-                interest_rate: (Math.random() * 5 + 3).toFixed(2),
-                duration_months: 12,
-                status: loanStatuses[Math.floor(Math.random() * loanStatuses.length)]
-            });
-        }
-        await Loan.bulkCreate(loansData);
-        console.log("✅ ลงข้อมูลเงินกู้ 10 รายการสำเร็จ");
-
-        // 3. สร้างเงินฝากแบบคละกัน (สมาชิกทุกคนต้องมีอย่างน้อย 1-3 รายการ)
-        const savingsData = [];
-        const months = ["01/2569", "02/2569"];
+        // 2. สร้างเงินกู้ และ "ตารางผ่อนชำระ" สำหรับแต่ละคน
+        console.log("⏳ กำลังสร้างสัญญาเงินกู้และคำนวณงวดชำระ...");
+        const loanStatuses = ["อนุมัติแล้ว", "รอพิจารณา", "ปิดยอดแล้ว"];
         
+        for (let i = 0; i < 15; i++) {
+            const amount = (Math.random() * 40000 + 10000);
+            const rate = (Math.random() * 5 + 3);
+            const months = 12;
+            const status = loanStatuses[Math.floor(Math.random() * loanStatuses.length)];
+
+            const loan = await Loan.create({
+                member_id: createdMembers[i].member_id,
+                loan_amount: amount.toFixed(2),
+                interest_rate: rate.toFixed(2),
+                duration_months: months,
+                status: status
+            });
+
+            // สร้าง Payment (ตารางผ่อน) สำหรับสัญญาคนนี้
+            const monthlyPay = ((amount + (amount * (rate / 100))) / months).toFixed(2);
+            const payments = [];
+            for (let j = 1; j <= months; j++) {
+                const date = new Date();
+                date.setMonth(date.getMonth() + j);
+                payments.push({
+                    loan_id: loan.loan_id,
+                    amount: monthlyPay,
+                    period: j,
+                    payment_date: date.toISOString().split('T')[0],
+                    // ถ้าสถานะกู้คือ 'ปิดยอดแล้ว' ให้สุ่มว่าจ่ายแล้วทั้งหมด
+                    status: status === "ปิดยอดแล้ว" ? "Paid" : (j <= 2 ? "Paid" : "Pending")
+                });
+            }
+            await Payment.bulkCreate(payments);
+        }
+        console.log("✅ เงินกู้ 15 รายการพร้อมตารางผ่อน: เรียบร้อย");
+
+        // 3. สร้างเงินฝาก
+        const savingsData = [];
         createdMembers.forEach(m => {
-            const numDeposits = Math.floor(Math.random() * 2) + 1; // สุ่มฝากคนละ 1-2 ครั้ง
+            const numDeposits = Math.floor(Math.random() * 4) + 1;
             for (let j = 0; j < numDeposits; j++) {
                 savingsData.push({
                     member_id: m.member_id,
-                    deposit_amount: (Math.random() * 1000 + 100).toFixed(2),
-                    deposit_date: `${Math.floor(Math.random() * 28) + 1}/${months[j] || "02/2569"}`
+                    deposit_amount: (Math.floor(Math.random() * 10) + 1) * 100, // สุ่ม 100, 200, ..., 1000
+                    deposit_date: `${Math.floor(Math.random() * 28) + 1}/0${j + 1}/2567`
                 });
             }
         });
         await Saving.bulkCreate(savingsData);
-        console.log(`✅ ลงข้อมูลเงินฝากคละกันจำนวน ${savingsData.length} รายการสำเร็จ`);
+        console.log(`✅ เงินฝาก ${savingsData.length} รายการ: เรียบร้อย`);
 
-        console.log("\n✨ เสร็จสมบูรณ์! ข้อมูลทดสอบพร้อมใช้งานแล้วครับ");
-        console.log("- ตรวจสอบหน้า Member เพื่อดูผลการแบ่งหน้า (Pagination)");
-        console.log("- ตรวจสอบหน้า Loan เพื่อดูสถานะเงินกู้ 10 รายการ");
-        console.log("- ตรวจสอบหน้า Saving เพื่อดูยอดรวมสะสมแบบสุ่ม");
+        console.log("\n✨ ข้อมูลทดสอบถูกติดตั้งลงใน DBSafeFund.sqlite เรียบร้อยแล้ว!");
 
     } catch (err) {
-        console.error("❌ เกิดข้อผิดพลาด:", err.message);
+        console.error("❌ Error:", err.message);
     } finally {
         await sequelize.close();
         process.exit();
