@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SafeFund - บันทึกเงินฝากใหม่</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside>
+        <div class="branding">
+            <div class="logo-icon"><span class="material-symbols-outlined">shield_person</span></div>
+            <div class="brand-text">
+                <h1>SafeFund</h1>
+                <p>Village Mgmt</p>
+            </div>
+        </div>
+        <nav>
+            <a class="nav-item" href="#"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+            <a class="nav-item" href="/"><span class="material-symbols-outlined">group</span> จัดการสมาชิก</a>
+            <a class="nav-item" href="/loans"><span class="material-symbols-outlined">account_balance_wallet</span> จัดการเงินกู้</a>
+            <a class="nav-item active" href="/savings"><span class="material-symbols-outlined">savings</span> เงินฝากสัจจะ</a>
+            <a class="nav-item" href="#"><span class="material-symbols-outlined">assessment</span> รายงาน</a>
+        </nav>
+        <div class="user-profile-card">
+            <div class="user-box">
+                <p>Logged in as Admin</p>
+                <div class="user-info">
+                    <div class="avatar"></div>
+                    <div class="user-name">วิชญ์พล สมใจ</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header>
+            <div class="header-left" style="display: flex; align-items: center;">
+                <button class="mobile-menu-btn" id="mobileMenuBtn"><span class="material-symbols-outlined">menu</span></button>
+                <h2 style="font-weight: 700; font-size: 1.125rem;">ระบบจัดการกองทุนหมู่บ้าน</h2>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="darkModeBtn" title="สลับโหมดมืด/สว่าง">
+                    <span class="material-symbols-outlined" id="darkModeIcon">dark_mode</span>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>บันทึกการฝากเงินใหม่</h1>
+                    <p>สมาชิก: <strong style="color: var(--primary);"><%= member.member_name %></strong></p>
+                </div>
+                <button class="btn-danger" onclick="window.history.back()">
+                    <span class="material-symbols-outlined">arrow_back</span> ยกเลิกและกลับ
+                </button>
+            </div>
+
+            <div class="content-card" style="max-width: 600px; margin: 0 auto;">
+                <form action="/create-saving" method="POST" style="padding: 20px;">
+                    
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted);">ชื่อสมาชิก (ล็อกรายการ)</label>
+                        <input type="text" value="<%= member.member_name %>" 
+                               style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; background-color: #f8fafc; color: #64748b; font-size: 1rem;" 
+                               disabled>
+                        
+                        <input type="hidden" name="member_id" value="<%= member.member_id %>">
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <label for="deposit_amount" style="display: block; margin-bottom: 8px; font-weight: 600;">จำนวนเงินฝาก (บาท)</label>
+                        <input type="number" id="deposit_amount" name="deposit_amount" placeholder="0.00" 
+                               style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 1rem;" 
+                               required step="0.01" autofocus>
+                    </div>
+
+                    <div style="margin-bottom: 32px;">
+                        <label for="deposit_date" style="display: block; margin-bottom: 8px; font-weight: 600;">วันที่ฝากเงิน</label>
+                        <input type="text" id="deposit_date" name="deposit_date" 
+                               style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 1rem;" 
+                               required placeholder="วว/ดด/ปปปป">
+                    </div>
+
+                    <div style="display: flex; gap: 12px;">
+                        <button type="submit" class="btn-info" style="flex: 2; justify-content: center; height: 48px;">
+                            <span class="material-symbols-outlined">add_circle</span> ยืนยันการฝากเงิน
+                        </button>
+                        <button type="button" class="btn-danger" style="flex: 1; justify-content: center; height: 48px;" onclick="window.history.back()">
+                            ยกเลิก
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/member-management.js"></script>
+</body>
+
+</html>

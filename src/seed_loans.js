@@ -1,100 +1,107 @@
-const Sequelize = require("sequelize");
+const { Sequelize, DataTypes } = require("sequelize");
 const path = require("path");
 
-// กำหนด Path ฐานข้อมูล [cite: 12]
-const dbPath = path.join(__dirname, "../Database/DBSafeFund.sqlite");
+// กำหนด Path ให้ตรงกับที่ Server เรียกใช้
+const dbPath = path.resolve(__dirname, "../Database", "DBSafeFund.sqlite");
 
 const sequelize = new Sequelize({
-  dialect: "sqlite",
-  storage: dbPath,
-  logging: false
+    dialect: "sqlite",
+    storage: dbPath,
+    logging: false // ปิด log เพื่อให้เห็นสรุปชัดเจน
 });
 
-// --- นิยาม Model ให้ตรงกับไฟล์หลัก  ---
+// --- นิยาม Model ---
 const Member = sequelize.define("Member", {
-  member_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-  member_name: { type: Sequelize.STRING, allowNull: false },
-  address: { type: Sequelize.TEXT, allowNull: false },
-  phone: { type: Sequelize.STRING, allowNull: false },
+    member_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    member_name: { type: DataTypes.STRING, allowNull: false },
+    address: { type: DataTypes.TEXT, allowNull: false },
+    phone: { type: DataTypes.STRING, allowNull: false },
 });
 
 const Loan = sequelize.define("loan", {
-  loan_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-  loan_amount: { type: Sequelize.DECIMAL(10, 2), allowNull: false },
-  interest_rate: { type: Sequelize.DECIMAL(10, 2), allowNull: false },
-  duration_months: { type: Sequelize.INTEGER, allowNull: false, defaultValue: 12 },
-  status: { type: Sequelize.STRING, allowNull: false },
+    loan_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    member_id: { type: DataTypes.INTEGER, allowNull: false },
+    loan_amount: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+    interest_rate: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+    duration_months: { type: DataTypes.INTEGER, defaultValue: 12 },
+    status: { type: DataTypes.STRING, allowNull: false },
 });
 
-// สร้างความสัมพันธ์ 
-Member.hasMany(Loan, { foreignKey: "member_id" });
-Loan.belongsTo(Member, { foreignKey: "member_id" });
+const Saving = sequelize.define("saving", {
+    saving_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    member_id: { type: DataTypes.INTEGER, allowNull: false },
+    deposit_amount: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+    deposit_date: { type: DataTypes.STRING, allowNull: false },
+});
 
-// --- ข้อมูลสมาชิก 20 คน แบบไม่ซ้ำกัน ---
-const mockMembers = [
-  { member_name: "นายวิทวัส รักไทย", address: "12/1 หมู่ 4 ต.เนินหอม อ.เมือง จ.ปราจีนบุรี", phone: "081-234-5678" },
-  { member_name: "นางสาวกมลวรรณ ใจดี", address: "45/2 ถ.ราษฎรดำริ ต.หน้าเมือง อ.เมือง จ.ปราจีนบุรี", phone: "089-876-5432" },
-  { member_name: "นายธนพล มั่นคง", address: "101 หมู่ 6 ต.บ้านพระ อ.เมือง จ.ปราจีนบุรี", phone: "086-111-2233" },
-  { member_name: "นางอรทัย แสงทอง", address: "9/9 ต.ดงขี้เหล็ก อ.เมือง จ.ปราจีนบุรี", phone: "084-555-6677" },
-  { member_name: "นายสมเกียรติ กล้าหาญ", address: "77 หมู่ 1 ต.ไม้เค็ด อ.เมือง จ.ปราจีนบุรี", phone: "082-333-4455" },
-  { member_name: "นางสาวศิริพร สวยงาม", address: "23/5 ต.รอบเมือง อ.เมือง จ.ปราจีนบุรี", phone: "083-999-8877" },
-  { member_name: "นายอภิชาติ พิทักษ์", address: "156 หมู่ 3 ต.โคกไม้ลาย อ.เมือง จ.ปราจีนบุรี", phone: "085-444-3322" },
-  { member_name: "นางจินตนา มีสุข", address: "88 ถ.เทศบาลดำริ ต.หน้าเมือง อ.เมือง จ.ปราจีนบุรี", phone: "087-222-1100" },
-  { member_name: "นายณรงค์เดช รักชาติ", address: "4 หมู่ 12 ต.เนินหอม อ.เมือง จ.ปราจีนบุรี", phone: "081-000-9988" },
-  { member_name: "นางสาววิไลลักษณ์ ทองคำ", address: "67/1 ต.บ้านพระ อ.เมือง จ.ปราจีนบุรี", phone: "089-111-5544" },
-  { member_name: "นายพีรพล รุ่งเรือง", address: "120 หมู่ 5 ต.ไม้เค็ด อ.เมือง จ.ปราจีนบุรี", phone: "086-777-1122" },
-  { member_name: "นางอารยา งามตา", address: "34/2 ต.ดงพระราม อ.เมือง จ.ปราจีนบุรี", phone: "084-888-9900" },
-  { member_name: "นายเกรียงไกร ดวงดี", address: "99 หมู่ 2 ต.เนินหอม อ.เมือง จ.ปราจีนบุรี", phone: "082-555-4433" },
-  { member_name: "นางสาวสุภาวดี ยิ้มหวาน", address: "11/3 ต.หน้าเมือง อ.เมือง จ.ปราจีนบุรี", phone: "083-222-3344" },
-  { member_name: "นายวีระศักดิ์ แข็งแกร่ง", address: "56 หมู่ 8 ต.ไม้เค็ด อ.เมือง จ.ปราจีนบุรี", phone: "085-666-7788" },
-  { member_name: "นางบุญมี มีทรัพย์", address: "7/1 ต.บ้านพระ อ.เมือง จ.ปราจีนบุรี", phone: "087-999-0011" },
-  { member_name: "นายทนงศักดิ์ ใจกล้า", address: "144 หมู่ 10 ต.เนินหอม อ.เมือง จ.ปราจีนบุรี", phone: "081-333-2211" },
-  { member_name: "นางสาวนงลักษณ์ พร้อมมูล", address: "29 ถ.ราษฎรดำริ ต.หน้าเมือง อ.เมือง จ.ปราจีนบุรี", phone: "089-444-5566" },
-  { member_name: "นายเอกชัย ไชยชนะ", address: "8 หมู่ 4 ต.โคกไม้ลาย อ.เมือง จ.ปราจีนบุรี", phone: "086-000-1122" },
-  { member_name: "นางกัลยาณี ใจบุญ", address: "90/2 ต.หน้าเมือง อ.เมือง จ.ปราจีนบุรี", phone: "084-111-2233" }
-];
+// --- คลังข้อมูลสมมติสำหรับสุ่ม ---
+const firstNames = ["สมชาย", "สมศรี", "วิชัย", "กิตติ", "นงลักษณ์", "ประเสริฐ", "วรวุฒิ", "อัญชลี", "ธนพล", "มณีรัตน์", "สัญชัย", "พิมล", "บุญส่ง", "รัตนา", "เฉลิม"];
+const lastNames = ["ใจดี", "มีสุข", "รักไทย", "แสงสว่าง", "เจริญพร", "รุ่งเรือง", "มั่นคง", "ศรีสวัสดิ์", "พูนทรัพย์", "แก้วมณี", "ทองดี", "เปรมปรีดิ์"];
+const districts = ["อ.เมือง", "อ.กบินทร์บุรี", "อ.ศรีมหาโพธิ", "อ.ประจันตคาม", "อ.นาดี"];
 
-// --- ข้อมูลเงินกู้ 15 สัญญา (เชื่อม ID 1-15) ---
-const mockLoans = [
-  { member_id: 1, loan_amount: 30000, interest_rate: 5.0, duration_months: 12, status: "อนุมัติแล้ว" },
-  { member_id: 2, loan_amount: 15000, interest_rate: 6.5, duration_months: 6, status: "รอพิจารณา" },
-  { member_id: 3, loan_amount: 45000, interest_rate: 5.5, duration_months: 18, status: "ปิดยอดแล้ว" },
-  { member_id: 4, loan_amount: 100000, interest_rate: 4.0, duration_months: 24, status: "อนุมัติแล้ว" },
-  { member_id: 5, loan_amount: 25000, interest_rate: 6.0, duration_months: 12, status: "อนุมัติแล้ว" },
-  { member_id: 6, loan_amount: 150000, interest_rate: 3.5, duration_months: 36, status: "รอพิจารณา" },
-  { member_id: 7, loan_amount: 80000, interest_rate: 4.5, duration_months: 24, status: "อนุมัติแล้ว" },
-  { member_id: 8, loan_amount: 20000, interest_rate: 7.0, duration_months: 10, status: "อนุมัติแล้ว" },
-  { member_id: 9, loan_amount: 60000, interest_rate: 5.0, duration_months: 12, status: "ปิดยอดแล้ว" },
-  { member_id: 10, loan_amount: 35000, interest_rate: 5.5, duration_months: 12, status: "รอพิจารณา" },
-  { member_id: 11, loan_amount: 10000, interest_rate: 8.0, duration_months: 4, status: "อนุมัติแล้ว" },
-  { member_id: 12, loan_amount: 50000, interest_rate: 5.0, duration_months: 12, status: "อนุมัติแล้ว" },
-  { member_id: 13, loan_amount: 25000, interest_rate: 6.0, duration_months: 12, status: "รอพิจารณา" },
-  { member_id: 14, loan_amount: 75000, interest_rate: 4.8, duration_months: 24, status: "อนุมัติแล้ว" },
-  { member_id: 15, loan_amount: 12000, interest_rate: 7.5, duration_months: 6, status: "ปิดยอดแล้ว" }
-];
+async function start() {
+    try {
+        console.log("🛠️ กำลังล้างและสร้างฐานข้อมูลใหม่ที่:", dbPath);
+        await sequelize.sync({ force: true });
 
-async function seedAll() {
-  console.log("🚀 กำลังล้างฐานข้อมูลและนำเข้าข้อมูลใหม่...");
-  try {
-    // ใช้ force: true เพื่อลบตาราง Members_backup ที่ค้างอยู่และสร้างตารางใหม่ให้สะอาด 
-    await sequelize.sync({ force: true }); 
-    console.log("✅ ล้างตารางและสร้างโครงสร้างใหม่เรียบร้อย");
+        // 1. สร้างสมาชิก 50 คนแบบสุ่มชื่อ
+        const membersData = [];
+        for (let i = 0; i < 50; i++) {
+            const fname = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const lname = lastNames[Math.floor(Math.random() * lastNames.length)];
+            const dist = districts[Math.floor(Math.random() * districts.length)];
+            membersData.push({
+                member_name: `${fname} ${lname}`,
+                address: `${Math.floor(Math.random() * 200) + 1} ม.${Math.floor(Math.random() * 10) + 1} ต.หน้าเมือง ${dist} จ.ปราจีนบุรี`,
+                phone: `08${Math.floor(Math.random() * 9) + 1}-${Math.floor(Math.random() * 9000) + 1000}-${Math.floor(Math.random() * 9000) + 1000}`
+            });
+        }
+        const createdMembers = await Member.bulkCreate(membersData);
+        console.log("✅ ลงข้อมูลสมาชิก 50 คนสำเร็จ");
 
-    // นำเข้าข้อมูลสมาชิก
-    await Member.bulkCreate(mockMembers);
-    console.log(`✅ เพิ่มสมาชิกใหม่ 20 คน เรียบร้อย (ชื่อ-ที่อยู่-เบอร์โทร ไม่ซ้ำกัน)`);
+        // 2. สร้างเงินกู้ 10 รายการ (สุ่มจากสมาชิก 10 คน)
+        const loansData = [];
+        const loanStatuses = ["อนุมัติแล้ว", "รอพิจารณา", "ชำระครบแล้ว"];
+        for (let i = 0; i < 10; i++) {
+            loansData.push({
+                member_id: createdMembers[i].member_id, // เลือก 10 คนแรกมาเป็นตัวอย่างกู้
+                loan_amount: (Math.random() * 40000 + 10000).toFixed(2),
+                interest_rate: (Math.random() * 5 + 3).toFixed(2),
+                duration_months: 12,
+                status: loanStatuses[Math.floor(Math.random() * loanStatuses.length)]
+            });
+        }
+        await Loan.bulkCreate(loansData);
+        console.log("✅ ลงข้อมูลเงินกู้ 10 รายการสำเร็จ");
 
-    // นำเข้าข้อมูลเงินกู้
-    await Loan.bulkCreate(mockLoans);
-    console.log(`✅ เพิ่มสัญญาเงินกู้ 15 รายการ เรียบร้อย`);
+        // 3. สร้างเงินฝากแบบคละกัน (สมาชิกทุกคนต้องมีอย่างน้อย 1-3 รายการ)
+        const savingsData = [];
+        const months = ["01/2569", "02/2569"];
+        
+        createdMembers.forEach(m => {
+            const numDeposits = Math.floor(Math.random() * 2) + 1; // สุ่มฝากคนละ 1-2 ครั้ง
+            for (let j = 0; j < numDeposits; j++) {
+                savingsData.push({
+                    member_id: m.member_id,
+                    deposit_amount: (Math.random() * 1000 + 100).toFixed(2),
+                    deposit_date: `${Math.floor(Math.random() * 28) + 1}/${months[j] || "02/2569"}`
+                });
+            }
+        });
+        await Saving.bulkCreate(savingsData);
+        console.log(`✅ ลงข้อมูลเงินฝากคละกันจำนวน ${savingsData.length} รายการสำเร็จ`);
 
-    console.log("\n✨ ข้อมูลสมบูรณ์ พร้อมตรวจสอบที่หน้าเว็บแล้วครับ!");
-  } catch (error) {
-    console.error("❌ เกิดข้อผิดพลาด:", error.message);
-  } finally {
-    await sequelize.close();
-    process.exit();
-  }
+        console.log("\n✨ เสร็จสมบูรณ์! ข้อมูลทดสอบพร้อมใช้งานแล้วครับ");
+        console.log("- ตรวจสอบหน้า Member เพื่อดูผลการแบ่งหน้า (Pagination)");
+        console.log("- ตรวจสอบหน้า Loan เพื่อดูสถานะเงินกู้ 10 รายการ");
+        console.log("- ตรวจสอบหน้า Saving เพื่อดูยอดรวมสะสมแบบสุ่ม");
+
+    } catch (err) {
+        console.error("❌ เกิดข้อผิดพลาด:", err.message);
+    } finally {
+        await sequelize.close();
+        process.exit();
+    }
 }
 
-seedAll();
+start();

@@ -23,8 +23,10 @@ body {
     background-color: var(--background-light);
     color: var(--text-main);
     display: flex;
-    min-h-screen: 100vh;
-    overflow: hidden;
+    height: 100vh;      /* แก้จาก min-h-screen: 100vh; */
+    width: 100%;
+    overflow: hidden;   /* ล็อคหน้าจอหลักไว้ เพื่อให้เลื่อนเฉพาะเนื้อหาด้านใน */
+    margin: 0;
 }
 
 .material-symbols-outlined {
@@ -153,12 +155,13 @@ nav {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    overflow-y: auto;
+    height: 100vh;      
+    overflow-y: auto;   
 }
 
 header {
-    height: var(--header-height);
+    flex-shrink: 0; 
+    height: var(--header-height, 70px); 
     background-color: var(--white);
     border-bottom: 1px solid var(--border-color);
     padding: 0 32px;
@@ -280,7 +283,55 @@ main {
     background-color: var(--emerald-hover);
     transform: translateY(-1px);
 }
+.btn-danger {
+    background-color: #ef4444 !important; /* สีแดง (ใช้ !important เพื่อบังคับสี) */
+    color: #ffffff !important;           /* ตัวอักษรสีขาว */
+    padding: 12px 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
 
+.btn-danger:hover {
+    background-color: #dc2626 !important; /* สีแดงเข้มขึ้นเวลา Hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* กรณีต้องการให้ icon ภายในเป็นสีขาวด้วย */
+.btn-danger .material-symbols-outlined {
+    color: #ffffff !important;
+}
+.btn-info {
+    background-color: #3b82f6 !important; /* สีน้ำเงิน Blue 500 */
+    color: #ffffff !important;
+    padding: 12px 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-info:hover {
+    background-color: #2563eb !important; /* น้ำเงินเข้มขึ้นเมื่อ Hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-info .material-symbols-outlined {
+    color: #ffffff !important;
+}
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -671,6 +722,17 @@ body.dark-mode select {
 }
 body.dark-mode .page-btn:hover {
     background-color: #334155;
+}
+/* --- แก้ไขปัญหา Dropdown ในโหมดมืด --- */
+.dark-mode select option {
+    background-color: #1e293b !important; /* พื้นหลังสีเข้ม */
+    color: #ffffff !important;           /* ตัวอักษรสีขาว */
+}
+
+/* บังคับสีพื้นหลังของตัว Select เมื่ออยู่ในโหมดมืด */
+.dark-mode select {
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
 }
 /* =========================================
    FORM STYLES (หน้าลงทะเบียนสมาชิกใหม่)

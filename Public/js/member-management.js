@@ -1,131 +1,127 @@
-// Public/js/member-management.js
-
-// 1. ระบบ Sidebar (Mobile Menu)
-document.addEventListener('DOMContentLoaded', function () {
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const sidebar = document.querySelector('aside');
-    const overlay = document.getElementById('sidebarOverlay');
-
-    function toggleSidebar() {
-        if (sidebar) sidebar.classList.toggle('open');
-        if (overlay) overlay.classList.toggle('active');
+document.addEventListener("DOMContentLoaded", function () {
+    // === 1. ระบบ Sidebar & Dark Mode (ทำงานทุกหน้า) ===
+    const darkModeBtn = document.getElementById("darkModeBtn");
+    const darkModeIcon = document.getElementById("darkModeIcon");
+    
+    if (localStorage.getItem("safefund_theme") === "dark") {
+        document.body.classList.add("dark-mode");
+        if (darkModeIcon) darkModeIcon.textContent = "light_mode";
     }
 
-    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleSidebar);
-    if (overlay) overlay.addEventListener('click', toggleSidebar);
+    if (darkModeBtn) {
+        darkModeBtn.addEventListener("click", function () {
+            document.body.classList.toggle("dark-mode");
+            const isDark = document.body.classList.contains("dark-mode");
+            if (darkModeIcon) darkModeIcon.textContent = isDark ? "light_mode" : "dark_mode";
+            localStorage.setItem("safefund_theme", isDark ? "dark" : "light");
+        });
+    }
+
+    // === 2. ระบบจัดการตาราง (ทำงานทุกหน้าที่มี Table) ===
+    const searchInput = document.getElementById("searchInput");
+    const rowSelect = document.getElementById("rowSelect");
+    const paginationInfo = document.getElementById("paginationInfo");
+    const paginationControls = document.getElementById("paginationControls");
+    const table = document.querySelector("table");
+
+    if (table && table.querySelector("tbody")) {
+        const tbody = table.querySelector("tbody");
+        const allRows = Array.from(tbody.querySelectorAll("tr")).filter(row => !row.cells[0].classList.contains('no-data'));
+        
+        let filteredRows = [...allRows];
+        let currentPage = 1;
+
+        function updateTable() {
+            const limitVal = rowSelect ? rowSelect.value : "10";
+            
+            // แก้ไขบั๊ก NaN: ตรวจสอบค่า 'all' และแปลงเป็นจำนวนตัวเลขที่ถูกต้อง
+            let rowsPerPage;
+            if (limitVal === "all") {
+                rowsPerPage = filteredRows.length > 0 ? filteredRows.length : 1;
+            } else {
+                rowsPerPage = parseInt(limitVal) || 10;
+            }
+            
+            const totalRows = filteredRows.length;
+            const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+
+            // ซ่อน/แสดงแถว
+            allRows.forEach(row => row.style.display = "none");
+            filteredRows.slice(start, end).forEach(row => row.style.display = "");
+
+            // อัปเดตข้อมูลสถานะ (ป้องกันการเกิด NaN ในหน้าจอ)
+            if (paginationInfo) {
+                if (totalRows > 0) {
+                    const displayStart = start + 1;
+                    const displayEnd = Math.min(end, totalRows);
+                    paginationInfo.textContent = `แสดงรายการที่ ${displayStart} ถึง ${displayEnd} จากทั้งหมด ${totalRows} รายการ`;
+                } else {
+                    paginationInfo.textContent = "ไม่พบข้อมูลที่ค้นหา";
+                }
+            }
+
+            renderPagination(totalPages, limitVal);
+        }
+
+        function renderPagination(totalPages, limitVal) {
+            if (!paginationControls) return;
+            paginationControls.innerHTML = "";
+            if (totalPages <= 1 || limitVal === "all") return;
+
+            const createBtn = (content, targetPage, isActive = false, isDisabled = false) => {
+                const btn = document.createElement("button");
+                btn.className = `page-btn ${isActive ? "active" : ""}`;
+                btn.innerHTML = content;
+                btn.disabled = isDisabled;
+                btn.onclick = (e) => { e.preventDefault(); currentPage = targetPage; updateTable(); };
+                return btn;
+            };
+
+            paginationControls.appendChild(createBtn('<span class="material-symbols-outlined">chevron_left</span>', currentPage - 1, false, currentPage === 1));
+            for (let i = 1; i <= totalPages; i++) {
+                paginationControls.appendChild(createBtn(i, i, i === currentPage));
+            }
+            paginationControls.appendChild(createBtn('<span class="material-symbols-outlined">chevron_right</span>', currentPage + 1, false, currentPage === totalPages));
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener("input", function () {
+                const query = this.value.toLowerCase();
+                filteredRows = allRows.filter(row => row.textContent.toLowerCase().includes(query));
+                currentPage = 1;
+                updateTable();
+            });
+        }
+
+        if (rowSelect) {
+            rowSelect.addEventListener("change", function () {
+                currentPage = 1;
+                updateTable();
+            });
+        }
+
+        updateTable();
+    }
 });
+// --- ระบบตั้งวันที่ปัจจุบันอัตโนมัติ (เฉพาะ วัน/เดือน/ปี พ.ศ.) ---
+const dateInput = document.getElementById("deposit_date");
 
-// 2. ระบบ Dark Mode
-const darkModeBtn = document.getElementById('darkModeBtn');
-const darkModeIcon = document.getElementById('darkModeIcon');
-
-if (localStorage.getItem('safefund_theme') === 'dark') {
-    document.body.classList.add('dark-mode');
-    if (darkModeIcon) darkModeIcon.textContent = 'light_mode';
-}
-
-if (darkModeBtn) {
-    darkModeBtn.addEventListener('click', function () {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        if (darkModeIcon) darkModeIcon.textContent = isDark ? 'light_mode' : 'dark_mode';
-        localStorage.setItem('safefund_theme', isDark ? 'dark' : 'light');
-    });
-}
-
-// 3. ระบบค้นหา, จำกัดจำนวนแถว & แบ่งหน้า (Pagination)
-const searchInput = document.getElementById('searchInput');
-const rowSelect = document.getElementById('rowSelect');
-const tableBody = document.getElementById('memberTableBody');
-const paginationControls = document.getElementById('paginationControls');
-const paginationInfo = document.getElementById('paginationInfo');
-
-let currentPage = 1;
-
-if (tableBody) {
-    function updateTableDisplay() {
-        const filterTerm = searchInput ? searchInput.value.toLowerCase() : '';
-        const limitValue = rowSelect ? rowSelect.value : '10';
-        const limit = limitValue.includes('10') ? 10 : 
-                     limitValue.includes('25') ? 25 : 
-                     limitValue.includes('50') ? 50 : Infinity;
-
-        const rows = Array.from(tableBody.getElementsByTagName('tr'));
-        
-        const matchedRows = rows.filter(row => {
-            if (row.cells.length === 1) return false; 
-            return row.textContent.toLowerCase().includes(filterTerm);
-        });
-
-        rows.forEach(row => row.style.display = 'none');
-
-        const totalItems = matchedRows.length;
-        
-        if (totalItems === 0) {
-            if (paginationControls) paginationControls.innerHTML = '';
-            if (paginationInfo) paginationInfo.textContent = 'ไม่พบข้อมูลที่ค้นหา';
-            return;
-        }
-
-        const totalPages = limit === Infinity ? 1 : Math.ceil(totalItems / limit);
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
-
-        const startIndex = (currentPage - 1) * limit;
-        const endIndex = limit === Infinity ? totalItems : Math.min(startIndex + limit, totalItems);
-
-        for (let i = startIndex; i < endIndex; i++) {
-            if (matchedRows[i]) matchedRows[i].style.display = '';
-        }
-
-        if (paginationInfo) {
-            paginationInfo.textContent = `แสดงผล ${startIndex + 1} ถึง ${endIndex} จากทั้งหมด ${totalItems} รายการ`;
-        }
-
-        renderPaginationButtons(totalPages);
-    }
-
-    function renderPaginationButtons(totalPages) {
-        if (!paginationControls) return;
-        paginationControls.innerHTML = '';
-        if (totalPages <= 1) return;
-
-        const prevBtn = document.createElement('button');
-        prevBtn.className = 'page-btn';
-        prevBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">chevron_left</span>';
-        prevBtn.disabled = currentPage === 1;
-        prevBtn.onclick = () => { currentPage--; updateTableDisplay(); };
-        paginationControls.appendChild(prevBtn);
-
-        for (let i = 1; i <= totalPages; i++) {
-            const pageBtn = document.createElement('button');
-            pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
-            pageBtn.textContent = i;
-            pageBtn.onclick = () => { currentPage = i; updateTableDisplay(); };
-            paginationControls.appendChild(pageBtn);
-        }
-
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'page-btn';
-        nextBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">chevron_right</span>';
-        nextBtn.disabled = currentPage === totalPages;
-        nextBtn.onclick = () => { currentPage++; updateTableDisplay(); };
-        paginationControls.appendChild(nextBtn);
-    }
-
-    if (searchInput) {
-        searchInput.addEventListener('keyup', () => {
-            currentPage = 1;
-            updateTableDisplay();
-        });
-    }
-
-    if (rowSelect) {
-        rowSelect.addEventListener('change', () => {
-            currentPage = 1;
-            updateTableDisplay();
-        });
-    }
-
-    updateTableDisplay();
+if (dateInput && !dateInput.value) {
+    const today = new Date();
+    
+    // จัดการวันที่
+    const d = String(today.getDate()).padStart(2, '0');
+    // จัดการเดือน (บวก 1 เพราะเดือนใน JS เริ่มที่ 0)
+    const m = String(today.getMonth() + 1).padStart(2, '0');
+    // แปลงเป็นปี พ.ศ. (+543)
+    const y = today.getFullYear() + 543;
+    
+    // กำหนดค่าลงในช่อง Input
+    dateInput.value = `${d}/${m}/${y}`;
 }

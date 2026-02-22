@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SafeFund - จัดการเงินฝากสัจจะ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <aside>
+        <div class="branding">
+            <div class="logo-icon"><span class="material-symbols-outlined">shield_person</span></div>
+            <div class="brand-text">
+                <h1>SafeFund</h1>
+                <p>Village Mgmt</p>
+            </div>
+        </div>
+        <nav>
+            <a class="nav-item" href="#"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+            <a class="nav-item" href="/"><span class="material-symbols-outlined">group</span> จัดการสมาชิก</a>
+            <a class="nav-item" href="/loans"><span class="material-symbols-outlined">account_balance_wallet</span>
+                จัดการเงินกู้</a>
+            <a class="nav-item active" href="/savings"><span class="material-symbols-outlined">savings</span>
+                เงินฝากสัจจะ</a>
+            <a class="nav-item" href="#"><span class="material-symbols-outlined">assessment</span> รายงาน</a>
+        </nav>
+        <div class="user-profile-card">
+            <div class="user-box">
+                <p>Logged in as Admin</p>
+                <div class="user-info">
+                    <div class="avatar"></div>
+                    <div class="user-name">วิชญ์พล สมใจ</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header>
+            <div class="header-left" style="display: flex; align-items: center;">
+                <button class="mobile-menu-btn" id="mobileMenuBtn"><span
+                        class="material-symbols-outlined">menu</span></button>
+                <h2 style="font-weight: 700; font-size: 1.125rem;">ระบบจัดการกองทุนหมู่บ้าน</h2>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="darkModeBtn" title="สลับโหมดมืด/สว่าง">
+                    <span class="material-symbols-outlined" id="darkModeIcon">dark_mode</span>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>จัดการเงินฝากสัจจะ</h1>
+                    <p>ตรวจสอบยอดเงินฝากสะสมและประวัติการฝากเงินของสมาชิก</p>
+                </div>
+                <button class="btn-info" onclick="window.location.href='/create-saving'">
+                    <span class="material-symbols-outlined">add_circle</span> บันทึกการฝากเงินใหม่
+                </button>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: rgba(34, 197, 94, 0.1); color: #22c55e;">
+                        <span class="material-symbols-outlined">account_balance</span>
+                    </div>
+                    <div class="stat-info">
+                        <p>ยอดเงินฝากรวมทั้งหมดในกองทุน</p>
+                        <p style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);">
+                            ฿ <%= (savings && savings.length> 0) ?
+                                savings.reduce((acc, curr) => acc + parseFloat(curr.deposit_amount), 0)
+                                .toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                : '0.00' %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-filter-bar">
+                    <div class="rows-select">
+                        <span>แสดงผล:</span>
+                        <select id="rowSelect">
+                            <option value="10">10 แถว</option>
+                            <option value="25">25 แถว</option>
+                            <option value="all">ทั้งหมด</option>
+                        </select>
+                    </div>
+                    <div class="table-search">
+                        <span class="material-symbols-outlined">filter_alt</span>
+                        <input id="searchInput" placeholder="ค้นหาชื่อสมาชิก..." type="text" />
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="savingsTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ลำดับ</th>
+                                <th>ชื่อสมาชิก</th>
+                                <th>ยอดเงินสะสมส่วนตัว</th>
+                                <th style="text-align: right;">ประวัติการฝาก</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (members && members.length> 0) { %>
+                                <% members.forEach(function(member, index) { const memberTotal=(savings ||
+                                    []).filter(s=> s.member_id == member.member_id)
+                                    .reduce((sum, s) => sum + parseFloat(s.deposit_amount), 0);
+                                    %>
+                                    <tr>
+                                        <td>
+                                            <%= index + 1 %>
+                                        </td>
+                                        <td class="member-name-cell"><span style="font-weight: 600;">
+                                                <%= member.member_name %>
+                                            </span></td>
+                                        <td style="color: var(--primary); font-weight: 700;">
+                                            ฿ <%= memberTotal.toLocaleString('th-TH', { minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2 }) %>
+                                        </td>
+                                        <td class="actions-cell">
+                                            <a href="/savings/history/<%= member.member_id %>">
+                                                <button class="btn-action" title="ดูประวัติการฝากเงิน">
+                                                    <span class="material-symbols-outlined">history</span>
+                                                </button>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="4" style="text-align: center;">ไม่พบข้อมูลสมาชิก</td>
+                                            </tr>
+                                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-bar">
+                    <div class="pagination-info" id="paginationInfo"></div>
+                    <div class="pagination-controls" id="paginationControls"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/member-management.js"></script>
+</body>
+
+</html>
