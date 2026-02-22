@@ -90,9 +90,6 @@ app.get("/loans", async (req, res) => {
         res.render("loans", { loans: [] });
     }
 });
-app.listen(frontend_port, () => {
-    console.log(`BackEnd SafeFund Run http://localhost:${frontend_port}/`);
-});
 
 
 // 1. หน้าแสดงฟอร์มสร้างสัญญา (ดึงสมาชิกไปให้เลือก)
@@ -225,17 +222,13 @@ app.get("/savings/history/:id", async (req, res) => {
 // 3. หน้าฟอร์มบันทึกการฝากเงินใหม่
 app.get("/create-saving", async (req, res) => {
     try {
-        const response = await axios.get(`${base_url}/members`);
-        res.render("create_saving", { members: response.data });
-    } catch (err) { 
-        res.status(500).send("Error loading create form"); 
-    }
-});
-app.get("/create-saving", async (req, res) => {
-    try {
-        // ดึงสมาชิกทั้งหมดมาให้เลือกใน Dropdown
-        const response = await axios.get(`${base_url}/members`);
-        res.render("create_saving", { members: response.data });
+        const membersRes = await axios.get(`${base_url}/members`);
+        const savingsRes = await axios.get(`${base_url}/savings`); 
+        
+        res.render("create_saving", { 
+            members: membersRes.data, 
+            savings: savingsRes.data 
+        });
     } catch (err) {
         console.error(err);
         res.redirect("/savings");
@@ -320,4 +313,25 @@ app.get("/add-saving", async (req, res) => {
         console.error(err);
         res.redirect("/savings");
     }
+});
+app.get("/reports", async (req, res) => {
+    try {
+        // ดึงข้อมูลสมาชิก, เงินกู้ (รวม Payment), และเงินฝาก
+        const membersRes = await axios.get(base_url + '/members');
+        const loansRes = await axios.get(base_url + '/loans');
+        const savingsRes = await axios.get(base_url + '/savings');
+
+        res.render("reports", { 
+            members: membersRes.data, 
+            loans: loansRes.data,
+            savings: savingsRes.data
+        });
+    } catch (err) {
+        console.error("Error loading reports:", err.message);
+        res.render("reports", { members: [], loans: [], savings: [] });
+    }
+});
+
+app.listen(frontend_port, () => {
+    console.log(`BackEnd SafeFund Run http://localhost:${frontend_port}/`);
 });

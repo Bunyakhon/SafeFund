@@ -125,3 +125,20 @@ if (dateInput && !dateInput.value) {
     // กำหนดค่าลงในช่อง Input
     dateInput.value = `${d}/${m}/${y}`;
 }
+const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const sidebar = document.querySelector("aside");
+    const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+    if (mobileMenuBtn && sidebar && sidebarOverlay) {
+        // เมื่อกดปุ่มเมนู (ขีด 3 ขีด)
+        mobileMenuBtn.addEventListener("click", function () {
+            sidebar.classList.add("open");
+            sidebarOverlay.classList.add("active");
+        });
+
+        // เมื่อกดที่พื้นที่ว่าง (Overlay) ให้ปิดเมนู
+        sidebarOverlay.addEventListener("click", function () {
+            sidebar.classList.remove("open");
+            sidebarOverlay.classList.remove("active");
+        });
+    }
