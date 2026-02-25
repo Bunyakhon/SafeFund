@@ -4,10 +4,33 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>SafeFund - รายงานสรุป</title>
+    <title>SafeFund - รายงานสรุปและกราฟ</title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .chart-container {
+            background: var(--white);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+        @media (max-width: 768px) {
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 
 <body>
@@ -54,7 +77,57 @@
             <div class="page-header">
                 <div class="page-title">
                     <h1>รายงานสรุปผลดำเนินงาน</h1>
-                    <p>ข้อมูลสรุปสถานะการเงิน รายงวดปีปัจจุบัน</p>
+                    <p>สรุปข้อมูลด้วยแผนภูมิและตารางรายงานปีปัจจุบัน</p>
+                </div>
+            </div>
+
+            <% 
+                // --- คำนวณข้อมูลสำหรับรายงานและกราฟ ---
+                let outstandingReport = {};
+                let totalLoanBalance = 0;
+                let totalLoanPaid = 0;
+
+                loans.forEach(loan => {
+                    let mid = loan.member_id;
+                    if (loan.Member) {
+                        if (!outstandingReport[mid]) {
+                            outstandingReport[mid] = { name: loan.Member.member_name, balance: 0 };
+                        }
+                        if (loan.payments) {
+                            loan.payments.forEach(p => {
+                                let amt = parseFloat(p.amount);
+                                if (p.status !== 'Paid') {
+                                    outstandingReport[mid].balance += amt;
+                                    totalLoanBalance += amt;
+                                } else {
+                                    totalLoanPaid += amt;
+                                }
+                            });
+                        }
+                    }
+                });
+
+                let savingsReport = {};
+                savings.forEach(s => {
+                    if (s.Member) {
+                        let mid = s.member_id;
+                        if (!savingsReport[mid]) {
+                            savingsReport[mid] = { name: s.Member.member_name, total: 0, count: 0 };
+                        }
+                        savingsReport[mid].total += parseFloat(s.deposit_amount);
+                        savingsReport[mid].count++;
+                    }
+                });
+            %>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 16px; font-size: 1rem;">สัดส่วนการชำระคืนเงินกู้ทั้งหมด</h3>
+                    <canvas id="loanStatusChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 16px; font-size: 1rem;">ยอดเงินฝากสะสม (รายบุคคล)</h3>
+                    <canvas id="savingsBarChart"></canvas>
                 </div>
             </div>
 
@@ -69,52 +142,19 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>รหัสสมาชิก</th>
                                 <th>ชื่อ-นามสกุล</th>
-                                <th>จำนวนสัญญาค้าง</th>
                                 <th style="text-align: right;">หนี้คงเหลือรวม (บาท)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <% 
-                                // Logic: จัดกลุ่มหนี้ค้างตามสมาชิก
-                                let outstandingReport = {};
-                                loans.forEach(loan => {
-                                    if (loan.status !== 'ปิดยอดแล้ว' && loan.Member) {
-                                        let mid = loan.member_id;
-                                        if (!outstandingReport[mid]) {
-                                            outstandingReport[mid] = { 
-                                                name: loan.Member.member_name, 
-                                                count: 0, 
-                                                balance: 0 
-                                            };
-                                        }
-                                        outstandingReport[mid].count++;
-                                        // คำนวณหนี้ที่ยังไม่จ่าย (Pending)
-                                        if (loan.payments) {
-                                            outstandingReport[mid].balance += loan.payments
-                                                .filter(p => p.status !== 'Paid')
-                                                .reduce((sum, p) => sum + parseFloat(p.amount), 0);
-                                        }
-                                    }
-                                });
-                                
-                                let hasOutstanding = Object.keys(outstandingReport).length > 0;
-                            %>
-                            <% if (hasOutstanding) { %>
-                                <% for (let id in outstandingReport) { %>
-                                    <tr>
-                                        <td>SF-<%= id %></td>
-                                        <td style="font-weight: 600;"><%= outstandingReport[id].name %></td>
-                                        <td><%= outstandingReport[id].count %> สัญญา</td>
-                                        <td style="text-align: right; color: #dc3545; font-weight: 700;">
-                                            ฿ <%= outstandingReport[id].balance.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
-                                        </td>
-                                    </tr>
-                                <% } %>
-                            <% } else { %>
-                                <tr><td colspan="4" style="text-align: center; padding: 20px;">ไม่มีหนี้ค้างชำระในระบบ</td></tr>
-                            <% } %>
+                            <% for (let id in outstandingReport) { if(outstandingReport[id].balance > 0) { %>
+                                <tr>
+                                    <td style="font-weight: 600;"><%= outstandingReport[id].name %></td>
+                                    <td style="text-align: right; color: #dc3545; font-weight: 700;">
+                                        ฿ <%= outstandingReport[id].balance.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                    </td>
+                                </tr>
+                            <% }} %>
                         </tbody>
                     </table>
                 </div>
@@ -125,40 +165,20 @@
                     <div class="icon-circle" style="background: rgba(40, 167, 69, 0.1); color: #28a745;">
                         <span class="material-symbols-outlined">savings</span>
                     </div>
-                    <h2 style="font-size: 1.25rem; font-weight: 700;">รายงานเงินฝากสะสม (เพื่อคำนวณปันผล)</h2>
+                    <h2 style="font-size: 1.25rem; font-weight: 700;">รายงานเงินฝากสะสม</h2>
                 </div>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>รหัสสมาชิก</th>
                                 <th>ชื่อ-นามสกุล</th>
-                                <th>จำนวนครั้งที่ฝาก</th>
-                                <th style="text-align: right;">ยอดเงินฝากรวม (บาท)</th>
+                                <th>จำนวนครั้ง</th>
+                                <th style="text-align: right;">ยอดรวม (บาท)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <% 
-                                // Logic: รวมยอดเงินฝากรายบุคคล
-                                let savingsReport = {};
-                                savings.forEach(s => {
-                                    if (s.Member) {
-                                        let mid = s.member_id;
-                                        if (!savingsReport[mid]) {
-                                            savingsReport[mid] = { 
-                                                name: s.Member.member_name, 
-                                                count: 0, 
-                                                total: 0 
-                                            };
-                                        }
-                                        savingsReport[mid].count++;
-                                        savingsReport[mid].total += parseFloat(s.deposit_amount);
-                                    }
-                                });
-                            %>
                             <% for (let id in savingsReport) { %>
                                 <tr>
-                                    <td>SF-<%= id %></td>
                                     <td style="font-weight: 600;"><%= savingsReport[id].name %></td>
                                     <td><%= savingsReport[id].count %> ครั้ง</td>
                                     <td style="text-align: right; color: #28a745; font-weight: 700;">
@@ -174,5 +194,51 @@
     </div>
 
     <script src="/js/member-management.js"></script>
+
+    <script>
+        // ข้อมูลกราฟสถานะเงินกู้ (Doughnut Chart)
+        const ctxLoan = document.getElementById('loanStatusChart').getContext('2d');
+        new Chart(ctxLoan, {
+            type: 'doughnut',
+            data: {
+                labels: ['ชำระแล้ว', 'หนี้คงเหลือ'],
+                datasets: [{
+                    data: [<%= totalLoanPaid %>, <%= totalLoanBalance %>],
+                    backgroundColor: ['#10b981', '#ef4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // ข้อมูลกราฟเงินฝาก (Bar Chart)
+        const savingLabels = <%- JSON.stringify(Object.values(savingsReport).map(r => r.name)) %>;
+        const savingData = <%- JSON.stringify(Object.values(savingsReport).map(r => r.total)) %>;
+
+        const ctxSaving = document.getElementById('savingsBarChart').getContext('2d');
+        new Chart(ctxSaving, {
+            type: 'bar',
+            data: {
+                labels: savingLabels,
+                datasets: [{
+                    label: 'ยอดเงินฝากสะสม (฿)',
+                    data: savingData,
+                    backgroundColor: '#0a66c2',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
