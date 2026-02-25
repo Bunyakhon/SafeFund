@@ -9,6 +9,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* สไตล์เพิ่มเติมสำหรับหัวตารางที่คลิกได้ */
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+            position: relative;
+        }
+        th.sortable:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .sort-icon {
+            font-size: 18px;
+            vertical-align: middle;
+            margin-left: 4px;
+            color: #888;
+        }
+        body.dark-mode th.sortable:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    </style>
 </head>
 
 <body>
@@ -35,7 +56,7 @@
                 <p>Logged in as Admin</p>
                 <div class="user-info">
                     <div class="avatar"></div>
-                    <div class="user-name">วิชญ์พล สมใจ</div>
+                    <div class="user-name">Admin Administered</div>
                 </div>
             </div>
         </div>
@@ -103,7 +124,9 @@
                     <table id="savingsTable">
                         <thead>
                             <tr>
-                                <th style="width: 80px;">ลำดับ</th>
+                                <th class="sortable" data-type="number" style="width: 120px;">
+                                    ลำดับ <span class="material-symbols-outlined sort-icon">expand_more</span>
+                                </th>
                                 <th>ชื่อสมาชิก</th>
                                 <th>ยอดเงินสะสมส่วนตัว</th>
                                 <th style="text-align: right;">ประวัติการฝาก</th>
@@ -116,7 +139,7 @@
                                     .reduce((sum, s) => sum + parseFloat(s.deposit_amount), 0);
                                 %>
                                     <tr>
-                                        <td><%= index + 1 %></td>
+                                        <td data-value="<%= index + 1 %>"><%= index + 1 %></td>
                                         <td class="member-name-cell"><span style="font-weight: 600;">
                                                 <%= member.member_name %>
                                             </span></td>
@@ -135,7 +158,7 @@
                                 <% }); %>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                    <td colspan="4" class="no-data" style="text-align: center; padding: 40px; color: var(--text-muted);">
                                         ไม่พบข้อมูลสมาชิก
                                     </td>
                                 </tr>

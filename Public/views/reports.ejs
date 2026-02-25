@@ -4,33 +4,10 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>SafeFund - รายงานสรุปและกราฟ</title>
+    <title>SafeFund - รายงานสรุป</title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-        .chart-container {
-            background: var(--white);
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        canvas {
-            width: 100% !important;
-            height: 300px !important;
-        }
-        @media (max-width: 768px) {
-            .charts-grid { grid-template-columns: 1fr; }
-        }
-    </style>
 </head>
 
 <body>
@@ -54,7 +31,7 @@
                 <p>Logged in as Admin</p>
                 <div class="user-info">
                     <div class="avatar"></div>
-                    <div class="user-name">วิชญ์พล สมใจ</div>
+                    <div class="user-name">Admin Administered</div>
                 </div>
             </div>
         </div>
@@ -77,30 +54,42 @@
             <div class="page-header">
                 <div class="page-title">
                     <h1>รายงานสรุปผลดำเนินงาน</h1>
-                    <p>สรุปข้อมูลด้วยแผนภูมิและตารางรายงานปีปัจจุบัน</p>
+                    <p>สรุปสถิติภาพรวมและการดำเนินงานทั้งหมดของกองทุน SafeFund</p>
                 </div>
             </div>
 
-            <% 
-                // --- คำนวณข้อมูลสำหรับรายงานและกราฟ ---
+            <%
+                // --- ส่วนการคำนวณข้อมูลสถิติรวม ---
                 let outstandingReport = {};
-                let totalLoanBalance = 0;
-                let totalLoanPaid = 0;
+                let totalLoanPrincipalSum = 0;   
+                let totalFundPaid = 0;        
+                let totalFundRemaining = 0;   
 
                 loans.forEach(loan => {
+                    totalLoanPrincipalSum += parseFloat(loan.loan_amount); 
+                    
                     let mid = loan.member_id;
                     if (loan.Member) {
                         if (!outstandingReport[mid]) {
-                            outstandingReport[mid] = { name: loan.Member.member_name, balance: 0 };
+                            outstandingReport[mid] = { 
+                                name: loan.Member.member_name, 
+                                principal: 0,
+                                balance: 0, 
+                                paid: 0, 
+                                remainingPeriods: 0 
+                            };
                         }
+                        outstandingReport[mid].principal += parseFloat(loan.loan_amount);
                         if (loan.payments) {
                             loan.payments.forEach(p => {
                                 let amt = parseFloat(p.amount);
                                 if (p.status !== 'Paid') {
                                     outstandingReport[mid].balance += amt;
-                                    totalLoanBalance += amt;
+                                    outstandingReport[mid].remainingPeriods++;
+                                    totalFundRemaining += amt; 
                                 } else {
-                                    totalLoanPaid += amt;
+                                    outstandingReport[mid].paid += amt;
+                                    totalFundPaid += amt; 
                                 }
                             });
                         }
@@ -108,50 +97,93 @@
                 });
 
                 let savingsReport = {};
+                let totalFundSavings = 0; 
                 savings.forEach(s => {
                     if (s.Member) {
                         let mid = s.member_id;
                         if (!savingsReport[mid]) {
                             savingsReport[mid] = { name: s.Member.member_name, total: 0, count: 0 };
                         }
-                        savingsReport[mid].total += parseFloat(s.deposit_amount);
+                        let amt = parseFloat(s.deposit_amount);
+                        savingsReport[mid].total += amt;
                         savingsReport[mid].count++;
+                        totalFundSavings += amt;
                     }
                 });
             %>
 
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <h3 style="margin-bottom: 16px; font-size: 1rem;">สัดส่วนการชำระคืนเงินกู้ทั้งหมด</h3>
-                    <canvas id="loanStatusChart"></canvas>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: rgba(10, 102, 194, 0.1); color: #0a66c2;">
+                        <span class="material-symbols-outlined">account_balance</span>
+                    </div>
+                    <div class="stat-info">
+                        <p>ยอดเงินกู้ทั้งหมด (เงินต้น)</p>
+                        <p style="font-size: 1.5rem; font-weight: 800;">
+                            ฿ <%= totalLoanPrincipalSum.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                        </p>
+                    </div>
                 </div>
-                <div class="chart-container">
-                    <h3 style="margin-bottom: 16px; font-size: 1rem;">ยอดเงินฝากสะสม (รายบุคคล)</h3>
-                    <canvas id="savingsBarChart"></canvas>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: rgba(40, 167, 69, 0.1); color: #28a745;">
+                        <span class="material-symbols-outlined">payments</span>
+                    </div>
+                    <div class="stat-info">
+                        <p>ยอดชำระคืนมาแล้วรวม</p>
+                        <p style="font-size: 1.5rem; font-weight: 800; color: #28a745;">
+                            ฿ <%= totalFundPaid.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
+                        <span class="material-symbols-outlined">pending_actions</span>
+                    </div>
+                    <div class="stat-info">
+                        <p>ยอดหนี้คงเหลือทั้งหมด</p>
+                        <p style="font-size: 1.5rem; font-weight: 800; color: #dc3545;">
+                            ฿ <%= totalFundRemaining.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                        </p>
+                    </div>
                 </div>
             </div>
 
+            <h2 class="report-section-title">
+                <span class="material-symbols-outlined">account_balance_wallet</span> 
+                รายละเอียดหนี้คงเหลือรายบุคคล
+            </h2>
+
             <div class="content-card" style="margin-bottom: 32px;">
-                <div class="form-header-icon">
-                    <div class="icon-circle" style="background: rgba(220, 53, 69, 0.1); color: #dc3545;">
-                        <span class="material-symbols-outlined">pending_actions</span>
-                    </div>
-                    <h2 style="font-size: 1.25rem; font-weight: 700;">รายงานสรุปสถานะเงินกู้คงค้าง</h2>
-                </div>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>ชื่อ-นามสกุล</th>
-                                <th style="text-align: right;">หนี้คงเหลือรวม (บาท)</th>
+                                <th class="sortable" data-type="text">ชื่อ-นามสกุล <span class="material-symbols-outlined sort-icon">expand_more</span></th>
+                                <th class="sortable" data-type="number" style="text-align: right;">ยอดกู้ (บาท) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
+                                <th class="sortable" data-type="number" style="text-align: right;">ชำระแล้ว (บาท) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
+                                <th class="sortable" data-type="number" style="text-align: right;">หนี้คงเหลือ (บาท) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
+                                <th class="sortable" data-type="number" style="text-align: center;">งวดที่เหลือ <span class="material-symbols-outlined sort-icon">expand_more</span></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <% for (let id in outstandingReport) { if(outstandingReport[id].balance > 0) { %>
+                            <% for (let id in outstandingReport) { if(outstandingReport[id].balance > 0 || outstandingReport[id].paid > 0) { %>
                                 <tr>
                                     <td style="font-weight: 600;"><%= outstandingReport[id].name %></td>
-                                    <td style="text-align: right; color: #dc3545; font-weight: 700;">
+                                    <td style="text-align: right;" data-value="<%= outstandingReport[id].principal %>">
+                                        ฿ <%= outstandingReport[id].principal.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                    </td>
+                                    <td style="text-align: right; color: #28a745;" data-value="<%= outstandingReport[id].paid %>">
+                                        ฿ <%= outstandingReport[id].paid.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                    </td>
+                                    <td style="text-align: right; color: #dc3545; font-weight: 700;" data-value="<%= outstandingReport[id].balance %>">
                                         ฿ <%= outstandingReport[id].balance.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                    </td>
+                                    <td style="text-align: center;" data-value="<%= outstandingReport[id].remainingPeriods %>">
+                                        <span class="badge" style="background: rgba(108, 117, 125, 0.1); color: #6c757d; padding: 4px 12px; border-radius: 20px;">
+                                            <%= outstandingReport[id].remainingPeriods %> งวด
+                                        </span>
                                     </td>
                                 </tr>
                             <% }} %>
@@ -160,29 +192,62 @@
                 </div>
             </div>
 
-            <div class="content-card">
-                <div class="form-header-icon">
-                    <div class="icon-circle" style="background: rgba(40, 167, 69, 0.1); color: #28a745;">
-                        <span class="material-symbols-outlined">savings</span>
+            <h2 class="report-section-title">
+                <span class="material-symbols-outlined">savings</span> 
+                รายละเอียดเงินฝากสัจจะและปันผล
+            </h2>
+
+            <div class="stats-grid">
+                <div class="stat-card" style="grid-column: span 2;">
+                    <div class="stat-icon" style="background: rgba(10, 102, 194, 0.1); color: #0a66c2;">
+                        <span class="material-symbols-outlined">account_balance_wallet</span>
                     </div>
-                    <h2 style="font-size: 1.25rem; font-weight: 700;">รายงานเงินฝากสะสม</h2>
+                    <div class="stat-info" style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                        <div>
+                            <p>ยอดเงินฝากสัจจะรวมทั้งหมด</p>
+                            <p style="font-size: 1.5rem; font-weight: 800; color: #0a66c2;">
+                                ฿ <%= totalFundSavings.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                            </p>
+                        </div>
+                        <div style="text-align: right; border-left: 2px solid var(--border-color); padding-left: 20px;">
+                            <p>หนี้คงเหลือรวม</p>
+                            <p style="font-size: 1.5rem; font-weight: 800; color: #dc3545;">
+                                ฿ <%= totalFundRemaining.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                            </p>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <div class="content-card">
                 <div class="table-container">
-                    <table>
+                    <table id="savingReportTable">
                         <thead>
                             <tr>
-                                <th>ชื่อ-นามสกุล</th>
-                                <th>จำนวนครั้ง</th>
-                                <th style="text-align: right;">ยอดรวม (บาท)</th>
+                                <th class="sortable" data-type="text">ชื่อ-นามสกุล <span class="material-symbols-outlined sort-icon">expand_more</span></th>
+                                <th class="sortable" data-type="number">จำนวนครั้ง <span class="material-symbols-outlined sort-icon">expand_more</span></th>
+                                <th class="sortable" data-type="number" style="text-align: right;">ยอดเงินสะสม (บาท) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
+                                <th class="sortable" data-type="number" style="text-align: right;">ปันผล (3%) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
+                                <th class="sortable" data-type="number" style="text-align: right; font-weight: 700;">รวมเงินปันผล (บาท) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <% for (let id in savingsReport) { %>
+                            <% for (let id in savingsReport) { 
+                                let totalDeposit = savingsReport[id].total;
+                                let dividend = totalDeposit * 0.03;
+                                let grandTotal = totalDeposit + dividend;
+                            %>
                                 <tr>
                                     <td style="font-weight: 600;"><%= savingsReport[id].name %></td>
-                                    <td><%= savingsReport[id].count %> ครั้ง</td>
-                                    <td style="text-align: right; color: #28a745; font-weight: 700;">
-                                        ฿ <%= savingsReport[id].total.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                    <td data-value="<%= savingsReport[id].count %>"><%= savingsReport[id].count %> ครั้ง</td>
+                                    <td style="text-align: right;" data-value="<%= totalDeposit %>">
+                                        ฿ <%= totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                    </td>
+                                    <td style="text-align: right; color: #28a745;" data-value="<%= dividend %>">
+                                        ฿ <%= dividend.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                    </td>
+                                    <td style="text-align: right; color: #0a66c2; font-weight: 700;" data-value="<%= grandTotal %>">
+                                        ฿ <%= grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
                                     </td>
                                 </tr>
                             <% } %>
@@ -194,51 +259,5 @@
     </div>
 
     <script src="/js/member-management.js"></script>
-
-    <script>
-        // ข้อมูลกราฟสถานะเงินกู้ (Doughnut Chart)
-        const ctxLoan = document.getElementById('loanStatusChart').getContext('2d');
-        new Chart(ctxLoan, {
-            type: 'doughnut',
-            data: {
-                labels: ['ชำระแล้ว', 'หนี้คงเหลือ'],
-                datasets: [{
-                    data: [<%= totalLoanPaid %>, <%= totalLoanBalance %>],
-                    backgroundColor: ['#10b981', '#ef4444'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
-            }
-        });
-
-        // ข้อมูลกราฟเงินฝาก (Bar Chart)
-        const savingLabels = <%- JSON.stringify(Object.values(savingsReport).map(r => r.name)) %>;
-        const savingData = <%- JSON.stringify(Object.values(savingsReport).map(r => r.total)) %>;
-
-        const ctxSaving = document.getElementById('savingsBarChart').getContext('2d');
-        new Chart(ctxSaving, {
-            type: 'bar',
-            data: {
-                labels: savingLabels,
-                datasets: [{
-                    label: 'ยอดเงินฝากสะสม (฿)',
-                    data: savingData,
-                    backgroundColor: '#0a66c2',
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
-        });
-    </script>
 </body>
 </html>

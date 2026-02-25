@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // === 1. ระบบ Sidebar & Dark Mode (ทำงานทุกหน้า) ===
+    // === 1. ระบบ Sidebar & Dark Mode ===
     const darkModeBtn = document.getElementById("darkModeBtn");
     const darkModeIcon = document.getElementById("darkModeIcon");
     
@@ -17,31 +17,44 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // === 2. ระบบจัดการตาราง (ทำงานทุกหน้าที่มี Table) ===
+    // === 2. ระบบ Sidebar Mobile ===
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const sidebar = document.querySelector("aside");
+    const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+    if (mobileMenuBtn && sidebar && sidebarOverlay) {
+        mobileMenuBtn.addEventListener("click", () => {
+            sidebar.classList.add("open");
+            sidebarOverlay.classList.add("active");
+        });
+        sidebarOverlay.addEventListener("click", () => {
+            sidebar.classList.remove("open");
+            sidebarOverlay.classList.remove("active");
+        });
+    }
+
+    // === 3. ระบบจัดการตาราง (Pagination, Search & Sorting) ===
     const searchInput = document.getElementById("searchInput");
     const rowSelect = document.getElementById("rowSelect");
     const paginationInfo = document.getElementById("paginationInfo");
     const paginationControls = document.getElementById("paginationControls");
-    const table = document.querySelector("table");
+    const tables = document.querySelectorAll("table");
 
-    if (table && table.querySelector("tbody")) {
+    tables.forEach(table => {
         const tbody = table.querySelector("tbody");
-        const allRows = Array.from(tbody.querySelectorAll("tr")).filter(row => !row.cells[0].classList.contains('no-data'));
-        
+        if (!tbody) return;
+
+        // ดึงแถวข้อมูลทั้งหมด (ยกเว้นแถว No Data)
+        let allRows = Array.from(tbody.querySelectorAll("tr")).filter(row => !row.cells[0].classList.contains('no-data'));
         let filteredRows = [...allRows];
         let currentPage = 1;
+        let currentSortIndex = -1;
+        let isAscending = true;
 
+        // ฟังก์ชันอัปเดตการแสดงผล (Pagination & Filter)
         function updateTable() {
-            const limitVal = rowSelect ? rowSelect.value : "10";
-            
-            // แก้ไขบั๊ก NaN: ตรวจสอบค่า 'all' และแปลงเป็นจำนวนตัวเลขที่ถูกต้อง
-            let rowsPerPage;
-            if (limitVal === "all") {
-                rowsPerPage = filteredRows.length > 0 ? filteredRows.length : 1;
-            } else {
-                rowsPerPage = parseInt(limitVal) || 10;
-            }
-            
+            const limitVal = rowSelect ? rowSelect.value : "all"; 
+            let rowsPerPage = (limitVal === "all") ? (filteredRows.length || 1) : parseInt(limitVal);
             const totalRows = filteredRows.length;
             const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
 
@@ -51,21 +64,14 @@ document.addEventListener("DOMContentLoaded", function () {
             const start = (currentPage - 1) * rowsPerPage;
             const end = start + rowsPerPage;
 
-            // ซ่อน/แสดงแถว
             allRows.forEach(row => row.style.display = "none");
             filteredRows.slice(start, end).forEach(row => row.style.display = "");
 
-            // อัปเดตข้อมูลสถานะ (ป้องกันการเกิด NaN ในหน้าจอ)
             if (paginationInfo) {
-                if (totalRows > 0) {
-                    const displayStart = start + 1;
-                    const displayEnd = Math.min(end, totalRows);
-                    paginationInfo.textContent = `แสดงรายการที่ ${displayStart} ถึง ${displayEnd} จากทั้งหมด ${totalRows} รายการ`;
-                } else {
-                    paginationInfo.textContent = "ไม่พบข้อมูลที่ค้นหา";
-                }
+                paginationInfo.textContent = totalRows > 0 
+                    ? `แสดงรายการที่ ${start + 1} ถึง ${Math.min(end, totalRows)} จากทั้งหมด ${totalRows} รายการ`
+                    : "ไม่พบข้อมูลที่ค้นหา";
             }
-
             renderPagination(totalPages, limitVal);
         }
 
@@ -90,6 +96,55 @@ document.addEventListener("DOMContentLoaded", function () {
             paginationControls.appendChild(createBtn('<span class="material-symbols-outlined">chevron_right</span>', currentPage + 1, false, currentPage === totalPages));
         }
 
+        // --- ระบบ Sorting (แก้ไขให้ย้ายตำแหน่ง Row จริง) ---
+        const headers = table.querySelectorAll("th.sortable");
+        headers.forEach((header, index) => {
+            header.addEventListener("click", () => {
+                const type = header.getAttribute("data-type");
+                
+                // สลับสถานะการเรียงลำดับ
+                if (currentSortIndex === index) {
+                    isAscending = !isAscending;
+                } else {
+                    isAscending = true;
+                    currentSortIndex = index;
+                }
+
+                // สั่งเรียงลำดับใน Array
+                allRows.sort((a, b) => {
+                    let valA = a.cells[index].getAttribute("data-value") || a.cells[index].textContent.trim();
+                    let valB = b.cells[index].getAttribute("data-value") || b.cells[index].textContent.trim();
+
+                    let comparison = 0;
+                    if (type === "number") {
+                        comparison = parseFloat(valA.replace(/[^0-9.-]+/g, "")) - parseFloat(valB.replace(/[^0-9.-]+/g, ""));
+                    } else {
+                        comparison = valA.localeCompare(valB, 'th');
+                    }
+                    return isAscending ? comparison : -comparison;
+                });
+
+                // **หัวใจสำคัญ: สั่งย้ายตำแหน่ง Row ใน HTML จริงๆ**
+                allRows.forEach(row => tbody.appendChild(row));
+
+                // อัปเดต Filter ปัจจุบันให้ตรงตามลำดับใหม่
+                const query = searchInput ? searchInput.value.toLowerCase() : "";
+                filteredRows = allRows.filter(row => row.textContent.toLowerCase().includes(query));
+
+                // อัปเดตไอคอนบนหัวตาราง
+                headers.forEach(h => {
+                    const icon = h.querySelector('.sort-icon');
+                    if (icon) icon.textContent = 'expand_more';
+                });
+                const currentIcon = header.querySelector('.sort-icon');
+                if (currentIcon) {
+                    currentIcon.textContent = isAscending ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
+                }
+
+                updateTable();
+            });
+        });
+
         if (searchInput) {
             searchInput.addEventListener("input", function () {
                 const query = this.value.toLowerCase();
@@ -98,47 +153,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 updateTable();
             });
         }
-
-        if (rowSelect) {
-            rowSelect.addEventListener("change", function () {
-                currentPage = 1;
-                updateTable();
-            });
-        }
+        if (rowSelect) rowSelect.addEventListener("change", () => { currentPage = 1; updateTable(); });
 
         updateTable();
+    });
+
+    // === 4. ตั้งวันที่ปัจจุบันอัตโนมัติ ===
+    const dateInput = document.getElementById("deposit_date");
+    if (dateInput && !dateInput.value) {
+        const today = new Date();
+        const d = String(today.getDate()).padStart(2, '0');
+        const m = String(today.getMonth() + 1).padStart(2, '0');
+        const y = today.getFullYear() + 543;
+        dateInput.value = `${d}/${m}/${y}`;
     }
 });
-// --- ระบบตั้งวันที่ปัจจุบันอัตโนมัติ (เฉพาะ วัน/เดือน/ปี พ.ศ.) ---
-const dateInput = document.getElementById("deposit_date");
-
-if (dateInput && !dateInput.value) {
-    const today = new Date();
-    
-    // จัดการวันที่
-    const d = String(today.getDate()).padStart(2, '0');
-    // จัดการเดือน (บวก 1 เพราะเดือนใน JS เริ่มที่ 0)
-    const m = String(today.getMonth() + 1).padStart(2, '0');
-    // แปลงเป็นปี พ.ศ. (+543)
-    const y = today.getFullYear() + 543;
-    
-    // กำหนดค่าลงในช่อง Input
-    dateInput.value = `${d}/${m}/${y}`;
-}
-const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-    const sidebar = document.querySelector("aside");
-    const sidebarOverlay = document.getElementById("sidebarOverlay");
-
-    if (mobileMenuBtn && sidebar && sidebarOverlay) {
-        // เมื่อกดปุ่มเมนู (ขีด 3 ขีด)
-        mobileMenuBtn.addEventListener("click", function () {
-            sidebar.classList.add("open");
-            sidebarOverlay.classList.add("active");
-        });
-
-        // เมื่อกดที่พื้นที่ว่าง (Overlay) ให้ปิดเมนู
-        sidebarOverlay.addEventListener("click", function () {
-            sidebar.classList.remove("open");
-            sidebarOverlay.classList.remove("active");
-        });
-    }
