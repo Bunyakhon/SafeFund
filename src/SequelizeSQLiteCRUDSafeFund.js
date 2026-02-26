@@ -251,18 +251,28 @@ app.put("/loans/:id", async (req, res) => {
   try {
     const loan = await Loan.findByPk(req.params.id);
     if (!loan) return res.status(404).send("Loan Contract Not Found");
+
+    // 1. อัปเดตข้อมูลสัญญาเงินกู้ (รวมถึงสถานะที่ส่งมาจากหน้า Form)
     await loan.update(req.body);
+
+    // 2. ลบงวดการชำระเดิมทิ้งเพื่อคำนวณใหม่ (ตาม Logic เดิมของระบบคุณ)
     await Payment.destroy({ where: { loan_id: loan.loan_id } });
+
     const principal = parseFloat(loan.loan_amount);
     const interestRate = parseFloat(loan.interest_rate) / 100;
     const months = parseInt(loan.duration_months);
-
     const totalInterest = principal * interestRate;
     const totalAmount = principal + totalInterest;
     const monthlyPayment = (totalAmount / months).toFixed(2);
 
     const payments = [];
     const startDate = new Date(loan.createdAt); 
+
+    // --- ส่วนที่เพิ่มเข้ามาใหม่ ---
+    // ตรวจสอบว่าถ้าสถานะสัญญาถูกเปลี่ยนเป็น 'ปิดยอดแล้ว' ให้ตั้งค่าสถานะทุกงวดเป็น 'Paid'
+    // หากไม่ใช่ ให้เป็น 'Pending' ตามปกติ
+    const paymentStatus = loan.status === 'ปิดยอดแล้ว' ? 'Paid' : 'Pending';
+    // --------------------------
 
     for (let i = 1; i <= months; i++) {
       const dueDate = new Date(startDate);
@@ -273,10 +283,11 @@ app.put("/loans/:id", async (req, res) => {
         amount: monthlyPayment,
         period: i,
         payment_date: dueDate.toISOString().split('T')[0],
-        status: 'Pending'
+        status: paymentStatus // ใช้ตัวแปรสถานะที่เช็คไว้ด้านบน
       });
     }
 
+    // 3. บันทึกงวดการชำระใหม่ลงฐานข้อมูล
     await Payment.bulkCreate(payments);
 
     res.send(loan);
