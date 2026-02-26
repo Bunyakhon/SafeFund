@@ -48,7 +48,7 @@ const districts = ["อ.เมือง", "อ.ศรีมหาโพธิ", 
 
 async function runSeed() {
     try {
-        console.log("🚀 กำลังเริ่มต้นสร้างข้อมูล Seed...");
+        console.log(" กำลังเริ่มต้นสร้างข้อมูล Seed...");
         await sequelize.sync({ force: true }); 
 
         const membersData = [];
@@ -60,7 +60,7 @@ async function runSeed() {
             });
         }
         const createdMembers = await Member.bulkCreate(membersData);
-        console.log("✅ สร้าง Member: 20 รายการ");
+        console.log(" สร้าง Member: 20 รายการ");
 
         const loansData = [];
         const loanMemberIndices = [0, 5, 10, 15, 19];
@@ -74,7 +74,7 @@ async function runSeed() {
             });
         }
         const createdLoans = await Loan.bulkCreate(loansData);
-        console.log("✅ สร้าง Loan: 5 รายการ");
+        console.log("สร้าง Loan: 5 รายการ");
 
         
         const paymentsData = [];
@@ -94,7 +94,7 @@ async function runSeed() {
             }
         }
         await Payment.bulkCreate(paymentsData);
-        console.log("✅ สร้าง Payment: 20 รายการ (4 งวดต่อสัญญา)");
+        console.log("สร้าง Payment: 20 รายการ (4 งวดต่อสัญญา)");
 
         const savingsData = [];
         for (const member of createdMembers) {
@@ -107,11 +107,11 @@ async function runSeed() {
             }
         }
         await Saving.bulkCreate(savingsData);
-        console.log("✅ สร้าง Saving: 100 รายการ (5 ครั้งต่อสมาชิก)");
+        console.log("สร้าง Saving: 100 รายการ (5 ครั้งต่อสมาชิก)");
 
-        console.log("\n✨ ติดตั้งข้อมูลทดสอบเสร็จสมบูรณ์!");
+        console.log("\nติดตั้งข้อมูลทดสอบเสร็จสมบูรณ์!");
     } catch (error) {
-        console.error("❌ เกิดข้อผิดพลาด:", error);
+        console.error("เกิดข้อผิดพลาด:", error);
     } finally {
         await sequelize.close();
         process.exit();
