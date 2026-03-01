@@ -44,14 +44,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const tbody = table.querySelector("tbody");
         if (!tbody) return;
 
-        // ดึงแถวข้อมูลทั้งหมด (ยกเว้นแถว No Data)
         let allRows = Array.from(tbody.querySelectorAll("tr")).filter(row => !row.cells[0].classList.contains('no-data'));
         let filteredRows = [...allRows];
         let currentPage = 1;
         let currentSortIndex = -1;
         let isAscending = true;
 
-        // ฟังก์ชันอัปเดตการแสดงผล (Pagination & Filter)
         function updateTable() {
             const limitVal = rowSelect ? rowSelect.value : "all"; 
             let rowsPerPage = (limitVal === "all") ? (filteredRows.length || 1) : parseInt(limitVal);
@@ -96,13 +94,10 @@ document.addEventListener("DOMContentLoaded", function () {
             paginationControls.appendChild(createBtn('<span class="material-symbols-outlined">chevron_right</span>', currentPage + 1, false, currentPage === totalPages));
         }
 
-        // --- ระบบ Sorting (แก้ไขให้ย้ายตำแหน่ง Row จริง) ---
         const headers = table.querySelectorAll("th.sortable");
         headers.forEach((header, index) => {
             header.addEventListener("click", () => {
                 const type = header.getAttribute("data-type");
-                
-                // สลับสถานะการเรียงลำดับ
                 if (currentSortIndex === index) {
                     isAscending = !isAscending;
                 } else {
@@ -110,11 +105,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     currentSortIndex = index;
                 }
 
-                // สั่งเรียงลำดับใน Array
                 allRows.sort((a, b) => {
                     let valA = a.cells[index].getAttribute("data-value") || a.cells[index].textContent.trim();
                     let valB = b.cells[index].getAttribute("data-value") || b.cells[index].textContent.trim();
-
                     let comparison = 0;
                     if (type === "number") {
                         comparison = parseFloat(valA.replace(/[^0-9.-]+/g, "")) - parseFloat(valB.replace(/[^0-9.-]+/g, ""));
@@ -124,14 +117,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     return isAscending ? comparison : -comparison;
                 });
 
-                // **หัวใจสำคัญ: สั่งย้ายตำแหน่ง Row ใน HTML จริงๆ**
                 allRows.forEach(row => tbody.appendChild(row));
-
-                // อัปเดต Filter ปัจจุบันให้ตรงตามลำดับใหม่
                 const query = searchInput ? searchInput.value.toLowerCase() : "";
                 filteredRows = allRows.filter(row => row.textContent.toLowerCase().includes(query));
 
-                // อัปเดตไอคอนบนหัวตาราง
                 headers.forEach(h => {
                     const icon = h.querySelector('.sort-icon');
                     if (icon) icon.textContent = 'expand_more';
@@ -140,7 +129,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (currentIcon) {
                     currentIcon.textContent = isAscending ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
                 }
-
                 updateTable();
             });
         });
@@ -166,5 +154,38 @@ document.addEventListener("DOMContentLoaded", function () {
         const m = String(today.getMonth() + 1).padStart(2, '0');
         const y = today.getFullYear() + 543;
         dateInput.value = `${d}/${m}/${y}`;
+    }
+
+    // === 5. ระบบสลับมุมมอง รายงาน (View Selector) ===
+    const loanSelector = document.getElementById('loanViewSelector');
+    const loanSummary = document.getElementById('loanSummary');
+    const loanTable = document.getElementById('loanTableContainer');
+
+    const savingSelector = document.getElementById('savingViewSelector');
+    const savingSummary = document.getElementById('savingSummary');
+    const savingTable = document.getElementById('savingTableContainer');
+
+    if (loanSelector && loanSummary && loanTable) {
+        loanSelector.addEventListener('change', function() {
+            if (this.value === 'summary') {
+                loanSummary.classList.remove('hidden-section');
+                loanTable.classList.add('hidden-section');
+            } else {
+                loanSummary.classList.add('hidden-section');
+                loanTable.classList.remove('hidden-section');
+            }
+        });
+    }
+
+    if (savingSelector && savingSummary && savingTable) {
+        savingSelector.addEventListener('change', function() {
+            if (this.value === 'summary') {
+                savingSummary.classList.remove('hidden-section');
+                savingTable.classList.add('hidden-section');
+            } else {
+                savingSummary.classList.add('hidden-section');
+                savingTable.classList.remove('hidden-section');
+            }
+        });
     }
 });

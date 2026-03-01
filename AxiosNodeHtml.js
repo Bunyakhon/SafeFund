@@ -125,30 +125,29 @@ app.get("/edit-loan/:id", async (req, res) => {
         const loanRes = await axios.get(base_url + '/loans/' + req.params.id);
         const membersRes = await axios.get(base_url + '/members');
         
+        // รับค่า error จาก URL (ถ้ามี)
+        const error = req.query.error;
+
         res.render("edit_loan", { 
             loan: loanRes.data, 
-            members: membersRes.data 
+            members: membersRes.data,
+            errorMessage: error === 'paid' ? 'ไม่สามารถแก้ไขรายละเอียดการเงินได้ เนื่องจากมีการชำระเงินเข้ามาแล้ว' : null
         });
     } catch (err) {
-        console.error("Error fetching loan data:", err.message);
         res.status(500).send('Error Load Loan Edit Page');
     }
 });
 
 app.post("/update-loan/:id", async (req, res) => {
     try {
-        const updateLoanData = {
-            member_id: req.body.member_id,
-            loan_amount: req.body.loan_amount,
-            interest_rate: req.body.interest_rate,
-            duration_months: req.body.duration_months,
-            status: req.body.status
-        };
-
-        await axios.put(base_url + '/loans/' + req.params.id, updateLoanData);
+        await axios.put(base_url + '/loans/' + req.params.id, req.body);
         res.redirect("/loans");
     } catch (err) {
-        console.error("Error updating loan:", err.message);
+        // หาก Backend ส่ง Error 400 กลับมา (กรณีมีการจ่ายเงินแล้ว)
+        if (err.response && err.response.status === 400) {
+            // ส่งกลับไปที่หน้าเดิมพร้อมแนบ parameter error=paid
+            return res.redirect(`/edit-loan/${req.params.id}?error=paid`);
+        }
         res.status(500).send('Error Update Loan');
     }
 });

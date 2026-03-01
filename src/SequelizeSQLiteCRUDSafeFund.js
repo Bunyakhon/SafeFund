@@ -249,30 +249,46 @@ app.post("/loans", async (req, res) => {
 
 app.put("/loans/:id", async (req, res) => {
   try {
+    // 1. ค้นหาสัญญาเงินกู้เดิมก่อน
     const loan = await Loan.findByPk(req.params.id);
-    if (!loan) return res.status(404).send("Loan Contract Not Found");
+    if (!loan) return res.status(404).send("ไม่พบสัญญาเงินกู้");
 
-    // 1. อัปเดตข้อมูลสัญญาเงินกู้ (รวมถึงสถานะที่ส่งมาจากหน้า Form)
+    // 2. ตรวจสอบว่ามีการชำระเงินในงวดใดงวดหนึ่งไปแล้วหรือยัง (Status เป็น 'Paid')
+    // เพื่อป้องกันการคำนวณใหม่ทับข้อมูลการเงินที่เกิดขึ้นจริงแล้ว
+    const paidPayments = await Payment.count({ 
+      where: { 
+        loan_id: loan.loan_id, 
+        status: 'Paid' 
+      } 
+    });
+
+    if (paidPayments > 0) {
+      // หากมีการจ่ายเงินแล้ว แนะนำให้แก้ไขได้เฉพาะสถานะสัญญา (Status) 
+      // แต่ไม่ควรให้แก้ไข ยอดเงิน, ดอกเบี้ย หรือ จำนวนเดือน เพราะจะกระทบงวดที่จ่ายไปแล้ว
+      return res.status(400).send("ไม่สามารถแก้ไขรายละเอียดการเงินได้ เนื่องจากมีการชำระเงินเข้ามาแล้วบางงวด");
+    }
+
+    // 3. หากยังไม่มีการชำระเงินเลย สามารถอัปเดตและคำนวณงวดใหม่ได้
     await loan.update(req.body);
 
-    // 2. ลบงวดการชำระเดิมทิ้งเพื่อคำนวณใหม่ (ตาม Logic เดิมของระบบคุณ)
+    // 4. ลบงวดการชำระเงินเก่าทิ้งทั้งหมดเพื่อสร้างใหม่ตามเงื่อนไขที่ถูกแก้ไข
     await Payment.destroy({ where: { loan_id: loan.loan_id } });
 
+    // 5. เริ่มคำนวณยอดชำระรายเดือนใหม่
     const principal = parseFloat(loan.loan_amount);
     const interestRate = parseFloat(loan.interest_rate) / 100;
     const months = parseInt(loan.duration_months);
+    
     const totalInterest = principal * interestRate;
     const totalAmount = principal + totalInterest;
     const monthlyPayment = (totalAmount / months).toFixed(2);
 
     const payments = [];
-    const startDate = new Date(loan.createdAt); 
+    const startDate = new Date(loan.createdAt);
 
-    // --- ส่วนที่เพิ่มเข้ามาใหม่ ---
-    // ตรวจสอบว่าถ้าสถานะสัญญาถูกเปลี่ยนเป็น 'ปิดยอดแล้ว' ให้ตั้งค่าสถานะทุกงวดเป็น 'Paid'
-    // หากไม่ใช่ ให้เป็น 'Pending' ตามปกติ
+    // กำหนดสถานะตั้งต้นของงวดใหม่ 
+    // ถ้าผู้ใช้เปลี่ยนสถานะสัญญาเป็น 'ปิดยอดแล้ว' ให้ตั้งทุกงวดเป็น 'Paid'
     const paymentStatus = loan.status === 'ปิดยอดแล้ว' ? 'Paid' : 'Pending';
-    // --------------------------
 
     for (let i = 1; i <= months; i++) {
       const dueDate = new Date(startDate);
@@ -283,16 +299,20 @@ app.put("/loans/:id", async (req, res) => {
         amount: monthlyPayment,
         period: i,
         payment_date: dueDate.toISOString().split('T')[0],
-        status: paymentStatus // ใช้ตัวแปรสถานะที่เช็คไว้ด้านบน
+        status: paymentStatus
       });
     }
 
-    // 3. บันทึกงวดการชำระใหม่ลงฐานข้อมูล
+    // 6. บันทึกงวดการชำระใหม่ลงฐานข้อมูลพร้อมกัน (Bulk Create)
     await Payment.bulkCreate(payments);
 
-    res.send(loan);
+    res.send({
+      message: "อัปเดตสัญญาและคำนวณงวดชำระใหม่เรียบร้อยแล้ว",
+      loan: loan
+    });
+
   } catch (err) {
-    console.error(err);
+    console.error("เกิดข้อผิดพลาดในการอัปเดตสัญญา:", err);
     res.status(500).send(err.message);
   }
 });

@@ -8,6 +8,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* สไตล์เพิ่มเติมสำหรับ Dropdown และการซ่อนส่วนประกอบ */
+        .report-header-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .view-selector {
+            padding: 8px 12px;
+            border-radius: 8px;
+            /* แก้ไขตรงนี้เพื่อให้เป็นสีขาวคงที่ */
+            background-color: #ffffff !important; 
+            background: #ffffff !important;
+            color: #333333 !important; /* กำหนดสีตัวอักษรเป็นสีเข้มเพื่อให้ชัดเจนบนพื้นขาว */
+            border: 1px solid var(--border-color);
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .view-selector:hover {
+            border-color: #0a66c2;
+        }
+
+        .hidden-section {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -59,11 +93,11 @@
             </div>
 
             <%
-                // --- ส่วนการคำนวณข้อมูลสถิติรวม ---
+                /* --- ส่วนการคำนวณข้อมูลสถิติรวม --- */
                 let outstandingReport = {};
                 let totalLoanPrincipalSum = 0;   
                 let totalFundPaid = 0;        
-                let totalFundRemaining = 0;   
+                let totalFundRemaining = 0;
 
                 loans.forEach(loan => {
                     totalLoanPrincipalSum += parseFloat(loan.loan_amount); 
@@ -80,6 +114,7 @@
                             };
                         }
                         outstandingReport[mid].principal += parseFloat(loan.loan_amount);
+                        
                         if (loan.payments) {
                             loan.payments.forEach(p => {
                                 let amt = parseFloat(p.amount);
@@ -110,6 +145,11 @@
                         totalFundSavings += amt;
                     }
                 });
+
+                let treasuryBalance = totalFundSavings - totalFundRemaining;
+                let totalFundDividend = totalFundSavings * 0.03; 
+                let totalSavingsWithDividend = totalFundSavings + totalFundDividend;
+                let totalLoanContractSum = totalFundPaid + totalFundRemaining;
             %>
 
             <div class="stats-grid">
@@ -148,43 +188,85 @@
                         </p>
                     </div>
                 </div>
+
+                <div class="stat-card" style="border: 1px solid #28a745;">
+                    <div class="stat-icon" style="background-color: rgba(40, 167, 69, 0.1); color: #28a745;">
+                        <span class="material-symbols-outlined">account_balance_wallet</span>
+                    </div>
+                    <div class="stat-info">
+                        <p>ยอดเงินคงเหลือในคลัง</p>
+                        <p style="font-size: 1.5rem; font-weight: 800; color: #28a745;">
+                            ฿ <%= treasuryBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <h2 class="report-section-title">
-                <span class="material-symbols-outlined">account_balance_wallet</span> 
-                รายละเอียดหนี้คงเหลือรายบุคคล
-            </h2>
+            <div class="report-header-group">
+                <h2 class="report-section-title" style="margin-bottom: 0;">
+                    <span class="material-symbols-outlined">account_balance_wallet</span> 
+                    รายละเอียดหนี้คงเหลือรายบุคคล
+                </h2>
+                <select class="view-selector" id="loanViewSelector">
+                    <option value="summary">ยอดเงินกู้ทั้งหมด (เงินต้น)</option>
+                    <option value="details">แสดงรายละเอียดของตาราง</option>
+                </select>
+            </div>
 
-            <div class="content-card" style="margin-bottom: 32px;">
+            <div class="stats-grid" id="loanSummary">
+                <div class="stat-card" style="grid-column: span 2;">
+                    <div class="stat-icon" style="background: rgba(10, 102, 194, 0.1); color: #0a66c2;">
+                        <span class="material-symbols-outlined">summarize</span>
+                    </div>
+                    <div class="stat-info" style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                        <div style="display: flex; gap: 40px;">
+                            <div>
+                                <p>ยอดเงินกู้ทั้งหมด (เงินต้น)</p>
+                                <p style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);">
+                                    ฿ <%= totalLoanPrincipalSum.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                </p>
+                            </div>
+                            <div style="border-left: 2px solid var(--border-color); padding-left: 20px;">
+                                <p>ยอดเงินกู้ทั้งหมดรวมดอกเบี้ย</p>
+                                <p style="font-size: 1.5rem; font-weight: 800; color: #0a66c2;">
+                                    ฿ <%= totalLoanContractSum.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                </p>
+                            </div>
+                            <div style="text-align: right; border-left: 2px solid var(--border-color); padding-left: 20px;">
+                                <p>หนี้คงเหลือรวม</p>
+                                <p style="font-size: 1.5rem; font-weight: 800; color: #dc3545;">
+                                    ฿ <%= totalFundRemaining.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card hidden-section" id="loanTableContainer" style="margin-bottom: 32px;">
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th class="sortable" data-type="text">ชื่อ-นามสกุล <span class="material-symbols-outlined sort-icon">expand_more</span></th>
-                                <th class="sortable" data-type="number" style="text-align: right;">ยอดกู้ (บาท) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
-                                <th class="sortable" data-type="number" style="text-align: right;">ชำระแล้ว (บาท) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
-                                <th class="sortable" data-type="number" style="text-align: right;">หนี้คงเหลือ (บาท) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
-                                <th class="sortable" data-type="number" style="text-align: center;">งวดที่เหลือ <span class="material-symbols-outlined sort-icon">expand_more</span></th>
+                                <th class="sortable" data-type="text">ชื่อ-นามสกุล</th>
+                                <th style="text-align: right;">ยอดกู้ (บาท)</th>
+                                <th style="text-align: right;">ชำระแล้ว (บาท)</th>
+                                <th style="text-align: right;">หนี้คงเหลือ (บาท)</th>
+                                <th style="text-align: center;">งวดที่เหลือ</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% for (let id in outstandingReport) { if(outstandingReport[id].balance > 0 || outstandingReport[id].paid > 0) { %>
                                 <tr>
-                                    <td style="font-weight: 600;"><%= outstandingReport[id].name %></td>
-                                    <td style="text-align: right;" data-value="<%= outstandingReport[id].principal %>">
-                                        ฿ <%= outstandingReport[id].principal.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                    <td style="font-weight: 600;">
+                                        <a href="/loans" style="text-decoration: none; color: #0a66c2;">
+                                            <%= outstandingReport[id].name %>
+                                        </a>
                                     </td>
-                                    <td style="text-align: right; color: #28a745;" data-value="<%= outstandingReport[id].paid %>">
-                                        ฿ <%= outstandingReport[id].paid.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
-                                    </td>
-                                    <td style="text-align: right; color: #dc3545; font-weight: 700;" data-value="<%= outstandingReport[id].balance %>">
-                                        ฿ <%= outstandingReport[id].balance.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
-                                    </td>
-                                    <td style="text-align: center;" data-value="<%= outstandingReport[id].remainingPeriods %>">
-                                        <span class="badge" style="background: rgba(108, 117, 125, 0.1); color: #6c757d; padding: 4px 12px; border-radius: 20px;">
-                                            <%= outstandingReport[id].remainingPeriods %> งวด
-                                        </span>
-                                    </td>
+                                    <td style="text-align: right;">฿ <%= outstandingReport[id].principal.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
+                                    <td style="text-align: right; color: #28a745;">฿ <%= outstandingReport[id].paid.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
+                                    <td style="text-align: right; color: #dc3545; font-weight: 700;">฿ <%= outstandingReport[id].balance.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
+                                    <td style="text-align: center;"><%= outstandingReport[id].remainingPeriods %> งวด</td>
                                 </tr>
                             <% }} %>
                         </tbody>
@@ -192,43 +274,57 @@
                 </div>
             </div>
 
-            <h2 class="report-section-title">
-                <span class="material-symbols-outlined">savings</span> 
-                รายละเอียดเงินฝากสัจจะและปันผล
-            </h2>
+            <div class="report-header-group">
+                <h2 class="report-section-title" style="margin-bottom: 0;">
+                    <span class="material-symbols-outlined">savings</span> 
+                    รายละเอียดเงินฝากสัจจะและปันผล
+                </h2>
+                <select class="view-selector" id="savingViewSelector">
+                    <option value="summary">ยอดเงินฝากทั้งหมด</option>
+                    <option value="details">แสดงรายละเอียดของตาราง</option>
+                </select>
+            </div>
 
-            <div class="stats-grid">
+            <div class="stats-grid" id="savingSummary">
                 <div class="stat-card" style="grid-column: span 2;">
                     <div class="stat-icon" style="background: rgba(10, 102, 194, 0.1); color: #0a66c2;">
-                        <span class="material-symbols-outlined">account_balance_wallet</span>
+                        <span class="material-symbols-outlined">payments</span>
                     </div>
                     <div class="stat-info" style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                        <div>
-                            <p>ยอดเงินฝากสัจจะรวมทั้งหมด</p>
-                            <p style="font-size: 1.5rem; font-weight: 800; color: #0a66c2;">
-                                ฿ <%= totalFundSavings.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
-                            </p>
+                        <div style="display: flex; gap: 40px;">
+                            <div>
+                                <p>ยอดเงินฝากสะสมปัจจุบัน</p>
+                                <p style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);">
+                                    ฿ <%= totalFundSavings.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                </p>
+                            </div>
+                            <div style="border-left: 2px solid var(--border-color); padding-left: 20px;">
+                                <p>ยอดเงินฝากรวมปันผล (3%)</p>
+                                <p style="font-size: 1.5rem; font-weight: 800; color: #0a66c2;">
+                                    ฿ <%= totalSavingsWithDividend.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                </p>
+                            </div>
                         </div>
                         <div style="text-align: right; border-left: 2px solid var(--border-color); padding-left: 20px;">
-                            <p>หนี้คงเหลือรวม</p>
-                            <p style="font-size: 1.5rem; font-weight: 800; color: #dc3545;">
-                                ฿ <%= totalFundRemaining.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                            <p>ภาระปันผลที่ต้องจ่าย (3%)</p>
+                            <p style="font-size: 1.5rem; font-weight: 800; color: #28a745;">
+                                ฿ <%= totalFundDividend.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="content-card">
+            <div class="content-card hidden-section" id="savingTableContainer">
                 <div class="table-container">
-                    <table id="savingReportTable">
+                    <table>
                         <thead>
                             <tr>
-                                <th class="sortable" data-type="text">ชื่อ-นามสกุล <span class="material-symbols-outlined sort-icon">expand_more</span></th>
-                                <th class="sortable" data-type="number">จำนวนครั้ง <span class="material-symbols-outlined sort-icon">expand_more</span></th>
-                                <th class="sortable" data-type="number" style="text-align: right;">ยอดเงินสะสม (บาท) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
-                                <th class="sortable" data-type="number" style="text-align: right;">ปันผล (3%) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
-                                <th class="sortable" data-type="number" style="text-align: right; font-weight: 700;">รวมเงินปันผล (บาท) <span class="material-symbols-outlined sort-icon">expand_more</span></th>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th>จำนวนครั้ง</th>
+                                <th style="text-align: right;">ยอดเงินสะสม (บาท)</th>
+                                <th style="text-align: right;">ปันผล (3%)</th>
+                                <th style="text-align: right; font-weight: 700;">รวมเงินปันผล (บาท)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -238,17 +334,15 @@
                                 let grandTotal = totalDeposit + dividend;
                             %>
                                 <tr>
-                                    <td style="font-weight: 600;"><%= savingsReport[id].name %></td>
-                                    <td data-value="<%= savingsReport[id].count %>"><%= savingsReport[id].count %> ครั้ง</td>
-                                    <td style="text-align: right;" data-value="<%= totalDeposit %>">
-                                        ฿ <%= totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                                    <td style="font-weight: 600;">
+                                        <a href="/savings/history/<%= id %>" style="text-decoration: none; color: #0a66c2;">
+                                            <%= savingsReport[id].name %>
+                                        </a>
                                     </td>
-                                    <td style="text-align: right; color: #28a745;" data-value="<%= dividend %>">
-                                        ฿ <%= dividend.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
-                                    </td>
-                                    <td style="text-align: right; color: #0a66c2; font-weight: 700;" data-value="<%= grandTotal %>">
-                                        ฿ <%= grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
-                                    </td>
+                                    <td><%= savingsReport[id].count %> ครั้ง</td>
+                                    <td style="text-align: right;">฿ <%= totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
+                                    <td style="text-align: right; color: #28a745;">฿ <%= dividend.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
+                                    <td style="text-align: right; color: #0a66c2; font-weight: 700;">฿ <%= grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
                                 </tr>
                             <% } %>
                         </tbody>

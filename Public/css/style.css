@@ -485,16 +485,22 @@ th.sortable {
 th.sortable:hover {
     background: rgba(0, 0, 0, 0.05);
 }
+
 .report-section-title {
-            margin: 2rem 0 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--border-color);
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .report-section-title span { font-size: 2rem; }
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.report-section-title span {
+    font-size: 2rem;
+}
+
+
 .sort-icon {
     font-size: 18px;
     vertical-align: middle;
