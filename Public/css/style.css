@@ -500,6 +500,39 @@ th.sortable:hover {
     font-size: 2rem;
 }
 
+/* สไตล์เพิ่มเติมสำหรับ Dropdown และการซ่อนส่วนประกอบ */
+.report-header-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.view-selector {
+    padding: 8px 12px;
+    border-radius: 8px;
+    /* แก้ไขตรงนี้เพื่อให้เป็นสีขาวคงที่ */
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #333333 !important;
+    /* กำหนดสีตัวอักษรเป็นสีเข้มเพื่อให้ชัดเจนบนพื้นขาว */
+    border: 1px solid var(--border-color);
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.view-selector:hover {
+    border-color: #0a66c2;
+}
+
+.hidden-section {
+    display: none !important;
+}
 
 .sort-icon {
     font-size: 18px;

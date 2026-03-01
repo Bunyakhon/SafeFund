@@ -9,38 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        /* สไตล์เพิ่มเติมสำหรับ Dropdown และการซ่อนส่วนประกอบ */
-        .report-header-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .view-selector {
-            padding: 8px 12px;
-            border-radius: 8px;
-            /* แก้ไขตรงนี้เพื่อให้เป็นสีขาวคงที่ */
-            background-color: #ffffff !important; 
-            background: #ffffff !important;
-            color: #333333 !important; /* กำหนดสีตัวอักษรเป็นสีเข้มเพื่อให้ชัดเจนบนพื้นขาว */
-            border: 1px solid var(--border-color);
-            font-family: 'Manrope', sans-serif;
-            font-size: 0.9rem;
-            cursor: pointer;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-
-        .view-selector:hover {
-            border-color: #0a66c2;
-        }
-
-        .hidden-section {
-            display: none !important;
-        }
+      
     </style>
 </head>
 
@@ -208,8 +177,8 @@
                     รายละเอียดหนี้คงเหลือรายบุคคล
                 </h2>
                 <select class="view-selector" id="loanViewSelector">
-                    <option value="summary">ยอดเงินกู้ทั้งหมด (เงินต้น)</option>
-                    <option value="details">แสดงรายละเอียดของตาราง</option>
+                    <option value="summary">แสดงข้อมูลแบบย่อ</option>
+                    <option value="details">แสดงข้อมูลแบบละเอียด</option>
                 </select>
             </div>
 
@@ -248,7 +217,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th class="sortable" data-type="text">ชื่อ-นามสกุล</th>
+                                <th>ชื่อ-นามสกุล</th>
                                 <th style="text-align: right;">ยอดกู้ (บาท)</th>
                                 <th style="text-align: right;">ชำระแล้ว (บาท)</th>
                                 <th style="text-align: right;">หนี้คงเหลือ (บาท)</th>
@@ -280,8 +249,8 @@
                     รายละเอียดเงินฝากสัจจะและปันผล
                 </h2>
                 <select class="view-selector" id="savingViewSelector">
-                    <option value="summary">ยอดเงินฝากทั้งหมด</option>
-                    <option value="details">แสดงรายละเอียดของตาราง</option>
+                    <option value="summary">ยอดเงินฝากสัจจะแบบย่อ</option>
+                    <option value="details">ยอดเงินฝากสัจจะแบบละเอียด</option>
                 </select>
             </div>
 
@@ -304,13 +273,14 @@
                                     ฿ <%= totalSavingsWithDividend.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
                                 </p>
                             </div>
-                        </div>
-                        <div style="text-align: right; border-left: 2px solid var(--border-color); padding-left: 20px;">
+                            <div style="text-align: right; border-left: 2px solid var(--border-color); padding-left: 20px;">
                             <p>ภาระปันผลที่ต้องจ่าย (3%)</p>
                             <p style="font-size: 1.5rem; font-weight: 800; color: #28a745;">
                                 ฿ <%= totalFundDividend.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
                             </p>
                         </div>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -320,7 +290,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ชื่อ-นามสกุล</th>
+                                <th lass="sortable">ชื่อ-นามสกุล</th>
                                 <th>จำนวนครั้ง</th>
                                 <th style="text-align: right;">ยอดเงินสะสม (บาท)</th>
                                 <th style="text-align: right;">ปันผล (3%)</th>

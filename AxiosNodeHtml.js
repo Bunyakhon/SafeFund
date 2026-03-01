@@ -332,5 +332,5 @@ app.get("/reports", async (req, res) => {
 });
 
 app.listen(frontend_port, () => {
-    console.log(`BackEnd SafeFund Run http://localhost:${frontend_port}/`);
+    console.log(`FrontEnd SafeFund Run http://localhost:${frontend_port}/`);
 });
