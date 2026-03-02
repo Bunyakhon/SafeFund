@@ -9,7 +9,6 @@ const sequelize = new Sequelize({
     logging: false
 });
 
-// --- นิยาม Model ---
 const Member = sequelize.define("Member", {
     member_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     member_name: { type: DataTypes.STRING, allowNull: false },
@@ -42,7 +41,6 @@ const Saving = sequelize.define("saving", {
     deposit_date: { type: DataTypes.STRING, allowNull: false },
 }, { tableName: 'savings' });
 
-// ฟังก์ชันช่วยจัดรูปแบบวันที่เป็น DD/MM/YYYY (พ.ศ.)
 function getFormattedDate(dateObj) {
     const d = String(dateObj.getDate()).padStart(2, '0');
     const m = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -58,8 +56,6 @@ async function runSeed() {
     try {
         console.log("🚀 เริ่มต้นการ Seed ข้อมูลใหม่แบบสมจริง...");
         await sequelize.sync({ force: true }); 
-
-        // 1. สร้าง Member 20 รายการ
         const membersData = [];
         for (let i = 0; i < 20; i++) {
             membersData.push({
@@ -71,12 +67,11 @@ async function runSeed() {
         const createdMembers = await Member.bulkCreate(membersData);
         console.log("✅ Member 20 รายการ: สำเร็จ");
 
-        // 2. สร้าง Loan 10 สัญญา (สุ่มจากสมาชิก 20 คน)
         const loansData = [];
         const loanStatuses = ["อนุมัติแล้ว", "ปิดยอดแล้ว", "อนุมัติแล้ว", "อนุมัติแล้ว"];
         for (let i = 0; i < 10; i++) {
             loansData.push({
-                member_id: createdMembers[i].member_id, // ใช้สมาชิก 10 คนแรกทำสัญญา
+                member_id: createdMembers[i].member_id, 
                 loan_amount: (Math.floor(Math.random() * 6) + 1) * 5000, 
                 interest_rate: 5.00,
                 duration_months: 6,
@@ -86,7 +81,6 @@ async function runSeed() {
         const createdLoans = await Loan.bulkCreate(loansData);
         console.log("✅ Loan 10 สัญญา: สำเร็จ");
 
-        // 3. สร้าง Payment สัมพันธ์กับ Loan (คำนวณรายงวด)
         const paymentsData = [];
         for (const loan of createdLoans) {
             const principal = parseFloat(loan.loan_amount);
@@ -108,26 +102,24 @@ async function runSeed() {
         }
         await Payment.bulkCreate(paymentsData);
         console.log("✅ Payment (รายงวดตามสัญญา): สำเร็จ");
-
-        // 4. สร้าง Saving 50 รายการ (สุ่มสมาชิกคละกันทั้ง 20 คน)
         const savingsData = [];
         for (let i = 0; i < 50; i++) {
             const randomMember = createdMembers[Math.floor(Math.random() * createdMembers.length)];
             const depositDate = new Date();
-            depositDate.setMonth(depositDate.getMonth() - Math.floor(Math.random() * 6)); // สุ่มย้อนหลัง 6 เดือน
+            depositDate.setMonth(depositDate.getMonth() - Math.floor(Math.random() * 6)); 
 
             savingsData.push({
                 member_id: randomMember.member_id,
-                deposit_amount: (Math.floor(Math.random() * 5) + 1) * 100, // ฝาก 100-500
+                deposit_amount: (Math.floor(Math.random() * 5) + 1) * 100, 
                 deposit_date: getFormattedDate(depositDate)
             });
         }
         await Saving.bulkCreate(savingsData);
-        console.log("✅ Saving 50 รายการ: สำเร็จ");
+        console.log("Saving 50 รายการ: สำเร็จ");
 
-        console.log("\n✨ ข้อมูลติดตั้งเสร็จสิ้น! ทุกวันที่ใช้รูปแบบ / และปี พ.ศ. เรียบร้อยแล้ว ✨");
+        console.log("\nข้อมูลติดตั้งเสร็จสิ้น! ทุกวันที่ใช้รูปแบบ / และปี พ.ศ. เรียบร้อยแล้ว ");
     } catch (error) {
-        console.error("❌ ข้อผิดพลาด:", error);
+        console.error("ข้อผิดพลาด:", error);
     } finally {
         await sequelize.close();
         process.exit();

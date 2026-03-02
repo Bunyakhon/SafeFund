@@ -1,71 +1,83 @@
+/* === 1. Global Variables (การกำหนดตัวแปรส่วนกลาง) === */
 :root {
-    --primary: #0a66c2;
-    --deep-blue: #1a365d;
-    --emerald-green: #10b981;
-    --emerald-hover: #059669;
-    --background-light: #f3f4f6;
-    --text-main: #111827;
-    --text-muted: #6b7280;
-    --white: #ffffff;
-    --border-color: #e5e7eb;
-    --sidebar-width: 260px;
-    --header-height: 64px;
-}
+    /* กลุ่มสีหลักของแอปพลิเคชัน */
+    --primary: #0a66c2; /* สีฟ้าหลัก (LinkedIn Blue) */
+    --deep-blue: #1a365d; /* สีน้ำเงินเข้มสำหรับ Sidebar */
+    --emerald-green: #10b981; /* สีเขียวมรกตสำหรับปุ่มและ Logo */
+    --emerald-hover: #059669;/* สีเขียวเข้มขึ้นเมื่อเอาเมาส์ไปชี้ */
 
+    /* กลุ่มสีพื้นหลังและตัวอักษร */
+    --background-light: #f3f4f6;/* สีพื้นหลังหลักของหน้าเว็บ (เทาอ่อน) */
+    --text-main: #111827;/* สีตัวอักษรหลัก (เกือบดำ) */
+    --text-muted: #6b7280;/* สีตัวอักษรสำหรับคำอธิบายหรือส่วนที่ไม่เน้น */
+    --white: #ffffff;/* สีขาว */
+    --border-color: #e5e7eb;/* สีของเส้นขอบต่าง ๆ */
+
+    /* การกำหนดขนาดมาตรฐาน */
+    --sidebar-width: 260px; /* ความกว้างของเมนูแถบข้าง */
+    --header-height: 64px; /* ความสูงของแถบเมนูด้านบน */
+}
+/* === 2. CSS Reset (การรีเซ็ตค่าเริ่มต้นของ Browser) === */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    margin: 0; /* ลบระยะห่างภายนอกทั้งหมด */
+    padding: 0; /* ลบระยะห่างภายในทั้งหมด */
+    box-sizing: border-box; /* ให้การคำนวณขนาดกว้าง-ยาว รวม Padding และ Border เข้าไปด้วย */
 }
 
+/* === 3. Body Style (โครงสร้างหลักของหน้าจอ) === */
 body {
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Manrope', sans-serif; /* กำหนดฟอนต์หลัก */
     background-color: var(--background-light);
     color: var(--text-main);
-    display: flex;
-    height: 100vh;
-    /* แก้จาก min-h-screen: 100vh; */
+    display: flex; /* ใช้ Flexbox เพื่อจัดวาง Sidebar กับ Main Content ขนานกัน */
+    height: 100vh;/* บังคับความสูงให้เต็มหน้าจอพอดี */
     width: 100%;
-    overflow: hidden;
-    /* ล็อคหน้าจอหลักไว้ เพื่อให้เลื่อนเฉพาะเนื้อหาด้านใน */
+    overflow: hidden;/* ล็อคหน้าจอหลักไม่ให้เลื่อน เพื่อไปเลื่อนเฉพาะเนื้อหาข้างในแทน */
     margin: 0;
 }
 
+/* === 4. Icon Settings (การตั้งค่าไอคอน Material Symbols) === */
 .material-symbols-outlined {
+    /* ปรับแต่งรูปลักษณ์ของไอคอน เช่น ความหนา (wght) และขนาด (opsz) */
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
+/* === 5. Sidebar Styling (ส่วนเมนูแถบข้าง) === */
 aside {
+    /* === 5. Sidebar Styling (ส่วนเมนูแถบข้าง) === */
     width: var(--sidebar-width);
     background-color: var(--deep-blue);
     height: 100vh;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease; /* สำหรับการทำ Animation เลื่อนเข้า-ออกบนมือถือ */
     display: flex;
-    flex-direction: column;
-    position: fixed;
+    flex-direction: column; /* จัดเรียง Logo, เมนู และโปรไฟล์จากบนลงล่าง */
+    position: fixed; /* ล็อคตำแหน่งให้อยู่กับที่ที่ด้านซ้าย */
     left: 0;
     top: 0;
-    z-index: 100;
+    z-index: 100; /* ให้อยู่เหนือเลเยอร์อื่น ๆ */
 }
 
+/* ส่วนหัวของ Sidebar (Logo + ชื่อแอป) */
 .branding {
     padding: 24px;
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: center; /* จัดให้ Logo กับข้อความอยู่กึ่งกลางแนวนอน */
+    gap: 12px; /* ระยะห่างระหว่าง Logo กับข้อความ */
 }
 
+/* กล่องไอคอนโลโก้ */
 .logo-icon {
     width: 40px;
     height: 40px;
     background-color: var(--emerald-green);
-    border-radius: 8px;
+    border-radius: 8px; /* ทำมุมโค้งมน */
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center; /* จัดไอคอนให้อยู่กลางกล่องพอดี */
     color: white;
 }
 
+/* ข้อความชื่อแอป SafeFund */
 .brand-text h1 {
     color: white;
     font-size: 1.25rem;
@@ -73,201 +85,232 @@ aside {
     line-height: 1;
 }
 
+/* ข้อความสโลแกนหรือประเภทย่อยใต้ชื่อแอป */
 .brand-text p {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.6); /* สีขาวโปร่งแสง */
     font-size: 0.7rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    text-transform: uppercase; /* ปรับเป็นตัวพิมพ์ใหญ่ทั้งหมด */
+    letter-spacing: 0.05em; /* เพิ่มระยะห่างระหว่างตัวอักษร */
     margin-top: 4px;
 }
 
+/* === 6. Navigation Menu (ส่วนรายการเมนู) === */
 nav {
-    flex: 1;
+    flex: 1; /* ให้พื้นที่เมนูขยายเต็มพื้นที่ที่เหลือใน Sidebar */
     padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 4px;  /* ระยะห่างระหว่างแต่ละรายการเมนู */
 }
 
+/* รายการเมนูแต่ละช่อง */
 .nav-item {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 10px 12px;
     color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
+    text-decoration: none; /* ลบเส้นใต้ลิงก์ */
     font-size: 0.875rem;
     font-weight: 500;
     border-radius: 8px;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease; /* เวลาเปลี่ยนสีให้มีความนุ่มนวล */
 }
 
+/* สถานะเมื่อเอาเมาส์ไปชี้เมนู */
 .nav-item:hover {
     color: white;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1); /* พื้นหลังขาวจาง ๆ */
 }
 
+/* สถานะเมื่ออยู่ในหน้านั้น ๆ (Active) */
 .nav-item.active {
     color: white;
-    background-color: var(--primary);
-    box-shadow: 0 4px 12px rgba(10, 102, 194, 0.3);
+    background-color: var(--primary);/* ใช้สีฟ้าหลัก */
+    box-shadow: 0 4px 12px rgba(10, 102, 194, 0.3);/* เพิ่มเงาให้ดูโดดเด่น */
 }
 
+/* === 1. ส่วนแสดงข้อมูลผู้ใช้ใน Sidebar (User Profile Card) === */
 .user-profile-card {
-    padding: 16px;
+    padding: 16px;/* เว้นระยะห่างภายในการ์ด */
+    /* เพิ่มเส้นขอบด้านบนสีขาวโปร่งแสง 10% เพื่อแยกส่วนออกจากเมนูด้านบนใน Sidebar */
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* กล่องครอบข้อมูลผู้ใช้เพื่อให้ดูเป็นสัดส่วน */
 .user-box {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.05); /* พื้นหลังสีขาวจาง ๆ เพื่อให้ดูนูนออกมาจาก Sidebar */
+    border-radius: 12px; /* ลบมุมกล่องให้โค้งมน */
+    padding: 12px;/* เว้นระยะห่างภายในกล่อง */
 }
 
+/* หัวข้อหรือคำอธิบายขนาดเล็กภายในกล่องผู้ใช้ */
 .user-box p {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.4);
-    margin-bottom: 8px;
+    font-size: 0.7rem; /* ขนาดตัวอักษรเล็กพิเศษ */
+    color: rgba(255, 255, 255, 0.4); /* สีตัวอักษรขาวจาง ๆ เพื่อลดความเด่น */
+    margin-bottom: 8px; /* เว้นระยะห่างด้านล่างก่อนถึงข้อมูลชื่อ */
 }
 
+/* จัดวางรูปโปรไฟล์และชื่อให้อยู่แถวเดียวกัน */
 .user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: flex; /* ใช้ Flexbox จัดวางรูปและชื่อขนานกัน */
+    align-items: center; /* จัดให้อยู่กึ่งกลางในแนวตั้ง */
+    gap: 12px;/* ระยะห่างระหว่างรูปโปรไฟล์กับชื่อ */
 }
 
+/* รูปโปรไฟล์ (Avatar) */
 .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    width: 32px; /* กำหนดความกว้าง */
+    height: 32px; /* กำหนดความสูง */
+    border-radius: 50%; /* ปรับรูปทรงให้เป็นวงกลมสมบูรณ์ */
+    /* ดึงรูปภาพโปรไฟล์มาแสดง */
     background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAVPS42WBpybrMHH-TK7I3VkM2QszwhSiMLm4OrvYvuPUWWz1Nkoa8icD4_9GEflfw2d7xbH4MLKzHL5cmkxgpuvmsx3qahE_0FlmFEj-9aTFWL_p_gbXIzkAoGF3a-arN_86VsOxNKJNkVMtW8fi3fP0yIobN4SBG0XGnRTBB_CJ36IXMF94IpH-yUfRpCMKl3ZmsQme9VnIjLejCcSOR688TYgNJJdhHAJF7j-2nQAdqu3rX17BYKqV-sOhGK0zjHxH061NYL7K0');
-    background-size: cover;
-    background-position: center;
+    background-size: cover; /* ปรับขนาดรูปให้คลุมพื้นที่วงกลมทั้งหมด */
+    background-position: center; /* จัดรูปให้อยู่กึ่งกลางวงกลม */
 }
 
+/* ชื่อผู้ใช้ */
 .user-name {
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 500;
+    color: white;/* ตัวอักษรสีขาวเพื่อให้ชัดเจนบน Sidebar สีเข้ม */
+    font-size: 0.875rem; /* ขนาดตัวอักษรมาตรฐานสำหรับชื่อ */
+    font-weight: 500;/* ความหนาของตัวอักษรระดับปานกลาง */
 }
 
+/* === 2. ส่วนควบคุมพื้นที่เนื้อหาหลัก (Main Layout Wrapper) === */
 .main-wrapper {
+    /* เว้นระยะด้านซ้ายเท่ากับความกว้างของ Sidebar เพื่อไม่ให้เนื้อหาถูก Sidebar ทับ */
     margin-left: var(--sidebar-width);
-    flex: 1;
+    flex: 1;/* ให้ขยายพื้นที่เต็มส่วนที่เหลือของหน้าจอ */
     display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow-y: auto;
+    flex-direction: column; /* จัด Header และ Main Content จากบนลงล่าง */
+    height: 100vh;/* บังคับความสูงเท่ากับหน้าจอพอดี */
+    overflow-y: auto; /* หากเนื้อหายาวเกินหน้าจอ ให้เลื่อนขึ้นลงได้เฉพาะส่วนนี้ */
 }
 
+/* === 3. ส่วนหัวของหน้าเว็บ (Top Header) === */
 header {
-    flex-shrink: 0;
-    height: var(--header-height, 70px);
-    background-color: var(--white);
-    border-bottom: 1px solid var(--border-color);
-    padding: 0 32px;
+    flex-shrink: 0;/* ป้องกันไม่ให้ Header ถูกบีบขนาดในกรณีพื้นที่เหลือน้อย */
+    height: var(--header-height, 70px);/* กำหนดความสูงตามตัวแปรที่ตั้งไว้ */
+    background-color: var(--white);/* พื้นหลังสีขาว */
+    border-bottom: 1px solid var(--border-color);/* เพิ่มเส้นขอบด้านล่างเพื่อแบ่งส่วน */
+    padding: 0 32px;/* เว้นระยะห่างด้านซ้ายและขวา */
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
+    align-items: center;/* จัดองค์ประกอบภายในให้อยู่กึ่งกลางแนวตั้ง */
+    justify-content: space-between;/* จัดให้ Search อยู่ซ้าย และ Actions อื่น ๆ อยู่ขวา */
+    position: sticky;/* ล็อค Header ไว้ด้านบนตลอดเวลาแม้จะเลื่อนหน้าจอลง */
     top: 0;
-    z-index: 50;
+    z-index: 50;/* กำหนดลำดับเลเยอร์ให้อยู่เหนือเนื้อหาหลัก */
 }
 
+/* กล่องค้นหา (Search Container) */
 .search-container {
-    position: relative;
-    width: 320px;
+    position: relative; /* เพื่อให้ไอคอนแว่นขยายอ้างอิงตำแหน่งภายในกล่องนี้ได้ */
+    width: 320px;/* กำหนดความกว้างของช่องค้นหา */
 }
 
+/* ไอคอนแว่นขยายข้างในช่องค้นหา */
 .search-container span {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    font-size: 20px;
+    position: absolute;/* ลอยตัวอยู่เหนือช่อง Input */
+    left: 12px;/* ระยะห่างจากด้านซ้าย */
+    top: 50%;/* จัดให้อยู่กึ่งกลางแนวตั้ง */
+    transform: translateY(-50%);/* ปรับตำแหน่งให้ตรงกึ่งกลางพอดี */
+    color: var(--text-muted);/* สีไอคอนจาง ๆ */
+    font-size: 20px;/* ขนาดไอคอน */
 }
 
+/* ช่องพิมพ์คำค้นหา (Input Field) */
 .search-container input {
     width: 100%;
-    padding: 8px 12px 8px 40px;
-    background-color: #f3f4f6;
-    border: 1px solid transparent;
-    border-radius: 8px;
+    padding: 8px 12px 8px 40px;/* เว้นด้านซ้าย 40px เพื่อไม่ให้ตัวหนังสือทับไอคอนแว่นขยาย */
+    background-color: #f3f4f6;/* พื้นหลังสีเทาอ่อน */
+    border: 1px solid transparent;/* เส้นขอบเริ่มต้นแบบโปร่งแสง */
+    border-radius: 8px;/* ลบมุมช่องกรอกให้โค้งมน */
     font-size: 0.875rem;
-    outline: none;
-    transition: border-color 0.2s;
+    outline: none;/* ลบเส้นขอบสีน้ำเงินเวลาคลิก (Default ของ Browser) */
+    transition: border-color 0.2s;/* เพิ่มความนุ่มนวลเวลาเส้นขอบเปลี่ยนสี */
 }
 
+/* สถานะเมื่อคลิกเข้าไปพิมพ์ในช่องค้นหา */
 .search-container input:focus {
-    border-color: var(--primary);
-    background-color: white;
+    border-color: var(--primary);/* เปลี่ยนเส้นขอบเป็นสีฟ้าหลัก */
+    background-color: white;/* เปลี่ยนพื้นหลังเป็นสีขาวล้วนเพื่อให้ดูเด่น */
 }
 
+/* กลุ่มปุ่มคำสั่งด้านขวาของ Header */
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 16px;/* ระยะห่างระหว่างปุ่มแจ้งเตือนและปุ่มออกจากระบบ */
 }
 
+/* ปุ่มแบบไอคอนทั่วไป */
 .icon-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
+    background: none;/* ไม่มีพื้นหลัง */
+    border: none;/* ไม่มีเส้นขอบ */
+    color: var(--text-muted);/* สีเทาจาง */
+    cursor: pointer;/* เปลี่ยนเมาส์เป็นรูปมือเมื่อชี้ */
     padding: 4px;
     display: flex;
     align-items: center;
     transition: color 0.2s;
-    position: relative;
+    position: relative;/* เพื่อให้จุดแจ้งเตือน (Notification Dot) อ้างอิงตำแหน่งได้ */
 }
 
 .icon-btn:hover {
-    color: var(--primary);
+    color: var(--primary);/* เปลี่ยนเป็นสีฟ้าเมื่อเอาเมาส์ไปชี้ */
 }
 
+/* ปุ่มออกจากระบบ (Logout) */
 .icon-btn.logout:hover {
-    color: #ef4444;
+    color: #ef4444;/* เปลี่ยนเป็นสีแดงเพื่อสื่อถึงความสำคัญของการออกจากระบบ */
 }
 
+/* จุดแจ้งเตือนสีแดง (Notification Indicator) */
 .notification-dot {
-    position: absolute;
+    position: absolute; /* ลอยตัวอยู่มุมบนขวาของไอคอนกระดิ่ง */
     top: 4px;
     right: 4px;
-    width: 8px;
-    height: 8px;
-    background-color: #ef4444;
-    border-radius: 50%;
-    border: 2px solid white;
+    width: 8px;/* ขนาดความกว้าง */
+    height: 8px;/* ขนาดความสูง */
+    background-color: #ef4444;/* สีแดงสด */
+    border-radius: 50%;/* ทำให้เป็นวงกลม */
+    border: 2px solid white;/* เพิ่มขอบสีขาวให้ดูตัดกับพื้นหลัง */
 }
 
+/* === 1. Main Content Layout (พื้นที่เนื้อหาหลัก) === */
 main {
-    padding: 32px;
+    padding: 32px; /* เว้นระยะห่างจากขอบด้านใน 32px ทุกด้าน */
     display: flex;
-    flex-direction: column;
-    gap: 24px;
+    flex-direction: column; /* จัดวางองค์ประกอบข้างในจากบนลงล่าง */
+    gap: 24px;/* ระยะห่างระหว่างแต่ละองค์ประกอบ (Header, Stats, Table) */
 }
 
+/* ส่วนหัวของแต่ละหน้า (เช่น หัวข้อหน้าสมาชิก + ปุ่มเพิ่มข้อมูล) */
 .page-header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    justify-content: space-between; /* จัดหัวข้อไว้ซ้ายสุด และปุ่มคำสั่งไว้ขวาสุด */
+    align-items: flex-start;/* จัดให้อยู่ชิดด้านบนในแนวตั้ง */
 }
 
+/* หัวข้อหลักของหน้า */
 .page-title h1 {
-    font-size: 1.875rem;
-    font-weight: 800;
-    letter-spacing: -0.025em;
+    font-size: 1.875rem; /* ขนาดตัวอักษรใหญ่ชัดเจน */
+    font-weight: 800;/* ตัวหนาพิเศษ */
+    letter-spacing: -0.025em;/* บีบระยะห่างตัวอักษรเล็กน้อยเพื่อให้ดูทันสมัย */
 }
 
+/* คำอธิบายใต้หัวข้อหลัก */
 .page-title p {
-    color: var(--text-muted);
-    margin-top: 4px;
+    color: var(--text-muted);/* สีเทาจาง */
+    margin-top: 4px;/* เว้นระยะห่างจากหัวข้อด้านบน */
 }
 
+/* === 2. Button Styles (การจัดการรูปแบบปุ่มต่าง ๆ) === */
+
+/* ปุ่มหลัก (เช่น ปุ่มเพิ่มสมาชิก, ปุ่มบันทึก) */
 .btn-primary {
-    background-color: var(--emerald-green);
+    background-color: var(--emerald-green); /* สีเขียวหลัก */
     color: white;
     border: none;
     padding: 10px 20px;
@@ -275,19 +318,20 @@ main {
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 8px; /* ระยะห่างระหว่างไอคอนและตัวหนังสือในปุ่ม */
     cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    transition: all 0.2s; /* เพิ่มความนุ่มนวลเวลาเปลี่ยนสีหรือขยับ */
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); /* เพิ่มเงาสีเขียวจาง ๆ ให้ปุ่มดูนูน */
 }
 
 .btn-primary:hover {
-    background-color: var(--emerald-hover);
-    transform: translateY(-1px);
+    background-color: var(--emerald-hover); /* สีเขียวเข้มขึ้นเมื่อชี้ */
+    transform: translateY(-1px); /* ปุ่มขยับขึ้นเล็กน้อยเมื่อชี้ */
 }
 
+/* ปุ่มอันตราย/ลบข้อมูล (สีแดง) */
 .btn-danger {
-    background-color: #ef4444 !important;
+    background-color: #ef4444 !important; /* ใช้ !important เพื่อบังคับสีแดงแม้ใน Dark Mode */
     /* สีแดง (ใช้ !important เพื่อบังคับสี) */
     color: #ffffff !important;
     /* ตัวอักษรสีขาว */
@@ -300,14 +344,14 @@ main {
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
-    text-decoration: none;
+    text-decoration: none; /* ลบเส้นใต้กรณีเป็นแท็ก <a> */
 }
 
 .btn-danger:hover {
     background-color: #dc2626 !important;
     /* สีแดงเข้มขึ้นเวลา Hover */
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); /* เงาสีแดง */
 }
 
 /* กรณีต้องการให้ icon ภายในเป็นสีขาวด้วย */
@@ -315,6 +359,7 @@ main {
     color: #ffffff !important;
 }
 
+/* ปุ่มข้อมูล/แก้ไข (สีน้ำเงิน) */
 .btn-info {
     background-color: #3b82f6 !important;
     /* สีน้ำเงิน Blue 500 */
@@ -342,12 +387,16 @@ main {
     color: #ffffff !important;
 }
 
+/* === 3. Statistics Cards (การ์ดสรุปผล Dashboard) === */
+
+/* การจัดวางการ์ดแบบตาราง 3 คอลัมน์ */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(3, 1fr);/* แบ่งเป็น 3 ช่องเท่า ๆ กัน */
+    gap: 16px;/* ระยะห่างระหว่างการ์ด */
 }
 
+/* รูปแบบตัวการ์ดสรุปผล */
 .stat-card {
     background-color: var(--white);
     padding: 16px;
@@ -358,6 +407,7 @@ main {
     gap: 16px;
 }
 
+/* วงกลมล้อมรอบไอคอนในหน้าสรุปผล */
 .stat-icon {
     width: 48px;
     height: 48px;
@@ -367,28 +417,34 @@ main {
     justify-content: center;
 }
 
+/* หัวข้อตัวเล็กในการ์ด (เช่น "ยอดเงินรวม") */
 .stat-info p:first-child {
     font-size: 0.7rem;
     font-weight: 700;
     color: var(--text-muted);
-    text-transform: uppercase;
+    text-transform: uppercase;/* ตัวพิมพ์ใหญ่ทั้งหมด */
     letter-spacing: 0.05em;
 }
 
+/* ตัวเลขสรุปผลตัวใหญ่ในการ์ด */
 .stat-info p:last-child {
     font-size: 1.5rem;
     font-weight: 700;
     margin-top: 2px;
 }
 
+/* === 4. Table & Content Card (ส่วนจัดการตารางข้อมูล) === */
+
+/* กล่องสีขาวที่ครอบตารางไว้ */
 .content-card {
     background-color: var(--white);
     border-radius: 12px;
     border: 1px solid var(--border-color);
-    overflow: hidden;
+    overflow: hidden;/* ตัดเนื้อหาที่ล้นออกจากมุมโค้ง */
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* แถบเครื่องมือเหนือตาราง (เช่น ค้นหา, เลือกจำนวนแถว) */
 .card-filter-bar {
     padding: 24px;
     border-bottom: 1px solid var(--border-color);
@@ -397,6 +453,7 @@ main {
     align-items: center;
 }
 
+/* ส่วนเลือกจำนวนแถวที่แสดง (Rows per page) */
 .rows-select {
     display: flex;
     align-items: center;
@@ -406,6 +463,7 @@ main {
     color: var(--text-muted);
 }
 
+/* ส่วนเลือกจำนวนแถวที่แสดง (Rows per page) */
 .rows-select select {
     padding: 4px 8px;
     border-radius: 6px;
@@ -414,11 +472,13 @@ main {
     outline: none;
 }
 
+/* ช่องค้นหาภายในแถบตาราง */
 .table-search {
     position: relative;
     width: 320px;
 }
 
+/* ไอคอนแว่นขยายในช่องค้นหาตาราง */
 .table-search span {
     position: absolute;
     left: 10px;
@@ -437,21 +497,25 @@ main {
     outline: none;
 }
 
+
 .table-container {
     width: 100%;
     overflow-x: auto;
 }
 
+/* โครงสร้างตารางหลัก */
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: collapse; /* รวมเส้นขอบตารางเข้าด้วยกัน */
     text-align: left;
 }
 
+/* แถวหัวตาราง */
 thead tr {
-    background-color: #f9fafb;
+    background-color: #f9fafb; /* สีพื้นหลังหัวตารางเทาอ่อนมาก ๆ */
 }
 
+/* ช่องหัวตาราง (TH) */
 th {
     padding: 16px 24px;
     font-size: 0.9rem;
@@ -461,11 +525,13 @@ th {
     letter-spacing: 0.05em;
 }
 
+/* แถวข้อมูลในตาราง */
 tbody tr {
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid #f3f4f6; /* เส้นแบ่งแถว */
     transition: background-color 0.2s;
 }
 
+/* ไฮไลท์แถวเมื่อเอาเมาส์ไปชี้ */
 tbody tr:hover {
     background-color: #f9fafb;
 }
@@ -475,49 +541,54 @@ td {
     font-size: 0.875rem;
 }
 
+/* หัวตารางที่คลิกเพื่อเรียงลำดับได้ */
 th.sortable {
     cursor: pointer;
-    user-select: none;
+    user-select: none; /* ป้องกันการคลุมดำตัวหนังสือเวลาคลิกรัว ๆ */
     transition: background 0.2s;
     position: relative;
 }
 
 th.sortable:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.05); /* เปลี่ยนสีพื้นหลังเล็กน้อยเมื่อชี้เพื่อให้รู้ว่ากดได้ */
 }
 
+
+/* === 1. Report Styles (ส่วนประกอบของหน้ารายงาน) === */
+
+/* หัวข้อของส่วนรายงาน (เช่น รายงานสรุปเงินกู้) */
 .report-section-title {
-    margin: 2rem 0 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--border-color);
-    color: var(--text-main);
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    margin: 2rem 0 1rem; /* เว้นระยะห่างบน 2rem และล่าง 1rem */
+    padding-bottom: 0.5rem;/* เว้นระยะห่างระหว่างตัวหนังสือกับเส้นขอบล่าง */
+    border-bottom: 2px solid var(--border-color);/* เส้นใต้หัวข้อ */
+    color: var(--text-main);/* สีตัวอักษรหลัก */
+    display: flex;/* ใช้ Flexbox เพื่อจัดวางไอคอนและข้อความขนานกัน */
+    align-items: center;/* จัดให้อยู่กึ่งกลางแนวตั้ง */
+    gap: 10px;/* ระยะห่างระหว่างไอคอนและข้อความ */
 }
 
+/* ปรับขนาดไอคอนในหัวข้อรายงาน */
 .report-section-title span {
-    font-size: 2rem;
+    font-size: 2rem; /* ขนาดไอคอนใหญ่พิเศษ */
 }
 
 /* สไตล์เพิ่มเติมสำหรับ Dropdown และการซ่อนส่วนประกอบ */
 .report-header-group {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* จัดวางวัตถุให้แยกซ้าย-ขวา */
     align-items: center;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
+    margin-bottom: 16px;/* เว้นระยะด้านล่างก่อนถึงตาราง */
+    flex-wrap: wrap;/* ถ้าพื้นที่ไม่พอ ให้เลื่อนลงมาบรรทัดใหม่ได้ */
     gap: 10px;
 }
 
+/* ตัวเลือกมุมมอง (Dropdown) สำหรับสลับระหว่าง "สรุป" และ "ตาราง" */
 .view-selector {
     padding: 8px 12px;
     border-radius: 8px;
-    /* แก้ไขตรงนี้เพื่อให้เป็นสีขาวคงที่ */
-    background-color: #ffffff !important;
+    background-color: #ffffff !important; /* บังคับพื้นหลังสีขาว */
     background: #ffffff !important;
-    color: #333333 !important;
-    /* กำหนดสีตัวอักษรเป็นสีเข้มเพื่อให้ชัดเจนบนพื้นขาว */
+    color: #333333 !important; /* บังคับสีตัวอักษรเข้ม */
     border: 1px solid var(--border-color);
     font-family: 'Manrope', sans-serif;
     font-size: 0.9rem;
@@ -527,40 +598,48 @@ th.sortable:hover {
 }
 
 .view-selector:hover {
-    border-color: #0a66c2;
+    border-color: #0a66c2; /* เปลี่ยนขอบเป็นสีฟ้าเมื่อชี้ */
 }
 
+/* Class สำหรับซ่อนส่วนประกอบ (ใช้งานร่วมกับ JavaScript) */
 .hidden-section {
-    display: none !important;
+    display: none !important;/* บังคับซ่อนวัตถุ */
 }
 
+/* === 2. Table Components (ส่วนประกอบย่อยภายในตาราง) === */
+
+/* ไอคอนแสดงการเรียงลำดับบนหัวตาราง */
 .sort-icon {
     font-size: 18px;
-    vertical-align: middle;
-    margin-left: 4px;
+    vertical-align: middle;/* จัดให้อยู่กึ่งกลางบรรทัด */
+    margin-left: 4px;/* เว้นระยะจากข้อความ */
     color: #888;
 }
+
 
 body.dark-mode th.sortable:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 
+/* ตกแต่งข้อความ Member ID */
 .member-id {
-    color: var(--primary);
-    font-weight: 700;
+    color: var(--primary);/* ใช้สีฟ้าหลัก */
+    font-weight: 700;/* ตัวหนา */
 }
 
+/* การจัดวางข้อมูลสมาชิกในแถวตาราง */
 .member-profile {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
+/* วงกลมสัญลักษณ์สมาชิก (กรณีไม่มีรูปโปรไฟล์) */
 .profile-circle {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: #f3f4f6;
+    background-color: #f3f4f6; /* พื้นหลังเทาอ่อน */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -569,24 +648,28 @@ body.dark-mode th.sortable:hover {
     color: var(--text-muted);
 }
 
+/* สไตล์พื้นฐานของป้ายสถานะ (Badge) */
 .status-badge {
     padding: 4px 10px;
-    border-radius: 9999px;
+    border-radius: 9999px; /* ทำมุมโค้งมนแบบวงรี (Pill shape) */
     font-size: 10px;
     font-weight: 700;
-    text-transform: uppercase;
+    text-transform: uppercase; /* ตัวพิมพ์ใหญ่ */
 }
 
+/* สถานะปกติ (สีเขียว) */
 .status-normal {
     background-color: #ecfdf5;
     color: #047857;
 }
 
+/* สถานะรอตรวจสอบ (สีส้ม) */
 .status-pending {
     background-color: #fffbeb;
     color: #b45309;
 }
 
+/* ช่องสำหรับปุ่มคำสั่ง (Edit/Delete) ในแต่ละแถว */
 .actions-cell {
     text-align: right;
     display: flex;
@@ -594,6 +677,7 @@ body.dark-mode th.sortable:hover {
     gap: 8px;
 }
 
+/* ปุ่มคำสั่งย่อยในตาราง */
 .btn-action {
     background: none;
     border: none;
@@ -604,6 +688,7 @@ body.dark-mode th.sortable:hover {
     transition: all 0.2s;
 }
 
+/* ปุ่มลบข้อมูล (สีแดงเมื่อชี้) */
 .btn-action:hover {
     background-color: rgba(10, 102, 194, 0.1);
     color: var(--primary);
@@ -614,6 +699,9 @@ body.dark-mode th.sortable:hover {
     color: #ef4444;
 }
 
+/* === 3. Pagination (ระบบเปลี่ยนหน้า) === */
+
+/* แถบควบคุมหน้า (อยู่ใต้ตาราง) */
 .pagination-bar {
     padding: 24px;
     display: flex;
@@ -622,6 +710,7 @@ body.dark-mode th.sortable:hover {
     border-top: 1px solid var(--border-color);
 }
 
+/* ข้อความบอกสถานะรายการ (เช่น แสดงหน้า 1 จาก 10) */
 .pagination-info {
     font-size: 0.875rem;
     color: var(--text-muted);
@@ -633,6 +722,7 @@ body.dark-mode th.sortable:hover {
     gap: 4px;
 }
 
+/* ปุ่มกดเปลี่ยนหน้า */
 .page-btn {
     width: 32px;
     height: 32px;
@@ -654,14 +744,15 @@ body.dark-mode th.sortable:hover {
 }
 
 .page-btn.active {
-    background-color: var(--primary);
+    background-color: var(--primary); /* สีฟ้าสำหรับหน้าปัจจุบัน */
     color: white;
 }
 
 .page-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+    opacity: 0.3; /* ปุ่มจางลงเมื่อกดไม่ได้ */
+    cursor: not-allowed; /* เปลี่ยนเมาส์เป็นรูปห้าม */
 }
+
 
 .table-container::-webkit-scrollbar {
     height: 6px;
@@ -707,35 +798,35 @@ body.dark-mode th.sortable:hover {
 }
 
 
+/* === 4. Responsive Design (การรองรับขนาดหน้าจอต่าง ๆ) === */
 
-
+/* หน้าจอขนาดกลาง (แท็บเล็ต) */
 @media (max-width: 1024px) {
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr); /* ปรับเหลือ 2 คอลัมน์ */
     }
 }
 
-
+/* หน้าจอขนาดเล็ก (มือถือ) */
 @media (max-width: 768px) {
-
     .mobile-menu-btn {
-        display: flex;
+        display: flex;/* แสดงปุ่มเปิดเมนู */
     }
 
     aside {
-        transform: translateX(-100%);
+        transform: translateX(-100%);/* ซ่อน Sidebar ไว้ด้านซ้าย */
     }
 
     aside.open {
-        transform: translateX(0);
+        transform: translateX(0);/* เลื่อน Sidebar ออกมาเมื่อกดเปิด */
     }
 
     .main-wrapper {
-        margin-left: 0;
+        margin-left: 0; /* ขยายเนื้อหาหลักเต็มหน้าจอ */
     }
 
     header {
-        padding: 0 16px;
+        padding: 0 16px; /* ปรับเหลือ 1 คอลัมน์ */
     }
 
     .search-container {
@@ -828,7 +919,9 @@ body.dark-mode .page-btn:hover {
 /* =========================================
    FORM STYLES (หน้าลงทะเบียนสมาชิกใหม่)
 ========================================= */
+/* === 6. Form Styles (การตกแต่งหน้าฟอร์มกรอกข้อมูล) === */
 
+/* การ์ดครอบฟอร์ม */
 .form-card {
     padding: 32px;
     max-width: 800px;
@@ -854,7 +947,7 @@ body.dark-mode .page-btn:hover {
     justify-content: center;
 }
 
-/* จัดกลุ่มฟอร์มให้อยู่ 2 คอลัมน์สำหรับหน้าจอใหญ่ */
+/* การจัดวางช่องกรอกข้อมูลแบบ 2 คอลัมน์ */
 .form-row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -878,133 +971,153 @@ body.dark-mode .page-btn:hover {
 .text-danger {
     color: #ef4444;
 }
+/* === 1. Form Element Styles (การจัดการช่องกรอกข้อมูล) === */
+
 
 .form-group input,
+/* ช่องกรอกข้อความแบบหลายบรรทัด (Textarea) */
 .form-group textarea {
-    width: 100%;
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background-color: var(--background-light);
-    color: var(--text-main);
-    font-size: 0.875rem;
-    font-family: inherit;
-    outline: none;
-    transition: all 0.2s ease;
+    width: 100%;/* กำหนดความกว้างเต็มพื้นที่ 100% ของกล่องที่ครอบอยู่ */
+    padding: 10px 14px;/* เพิ่มระยะห่างภายในช่องกรอก (บน-ล่าง 10px, ซ้าย-ขวา 14px) */
+    border-radius: 8px;/* ลบมุมขอบให้โค้งมน 8px เพื่อความสวยงาม */
+    border: 1px solid var(--border-color);/* กำหนดเส้นขอบโดยใช้สีจากตัวแปรส่วนกลาง */
+    background-color: var(--background-light);/* สีพื้นหลังช่องกรอกใช้สีเทาอ่อน */
+    color: var(--text-main);/* สีของข้อความข้างใน */
+    font-size: 0.875rem;/* ขนาดตัวอักษรมาตรฐาน */
+    font-family: inherit;/* ใช้ฟอนต์เดียวกับองค์ประกอบหลักของหน้าเว็บ */
+    outline: none;/* ปิดเส้นขอบสีน้ำเงินเริ่มต้นที่ Browser มักใส่มาให้ */
+    transition: all 0.2s ease;/* เพิ่ม Animation เวลาเปลี่ยนสถานะให้ดูนุ่มนวลขึ้นใน 0.2 วินาที */
 }
 
+/* เอฟเฟกต์เมื่อคลิกที่ช่อง Input หรือ Textarea (Focus State) */
 .form-group input:focus,
 .form-group textarea:focus {
-    border-color: var(--primary);
-    background-color: var(--white);
+    border-color: var(--primary);/* เปลี่ยนสีเส้นขอบเป็นสีฟ้าหลักเพื่อให้ผู้ใช้รู้ว่ากำลังพิมพ์ช่องนี้ */
+    background-color: var(--white);/* เปลี่ยนพื้นหลังเป็นสีขาวล้วนเพื่อให้ดูเด่นออกมา */
+    /* เพิ่มเงารอบช่องกรอก (Halo Effect) สีฟ้าจางๆ เพื่อช่วยนำสายตา */
     box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
 }
 
-
+/* สถานะช่องข้อมูลที่ไม่อนุญาตให้แก้ไข (Read-only) เช่น ID ที่ระบบสร้างให้ */
 .input-readonly {
-    background-color: #e5e7eb !important;
-    color: var(--text-muted) !important;
-    cursor: not-allowed;
-    border-color: transparent !important;
+    background-color: #e5e7eb !important;/* บังคับใช้สีพื้นหลังเทาเข้มเพื่อสื่อว่าแก้ไขไม่ได้ */
+    color: var(--text-muted) !important;/* ใช้สีตัวอักษรแบบจาง */
+    cursor: not-allowed;/* เปลี่ยนรูปเมาส์เป็นสัญลักษณ์ห้ามเมื่อชี้ */
+    border-color: transparent !important;/* ซ่อนเส้นขอบ */
 }
 
+/* เส้นคั่นกลางฟอร์มเพื่อแบ่งหมวดหมู่ข้อมูล */
 .form-divider {
-    height: 1px;
-    background-color: var(--border-color);
-    margin: 24px 0;
+    height: 1px;/* ความหนาของเส้น */
+    background-color: var(--border-color);/* สีของเส้นคั่น */
+    margin: 24px 0;/* เว้นระยะห่างด้านบนและล่าง 24px */
 }
 
+/* ส่วนรวบรวมปุ่มคำสั่งด้านล่างฟอร์ม (Submit / Cancel) */
 .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 16px;
+    display: flex;/* ใช้ Flexbox เพื่อจัดวางปุ่มขนานกัน */
+    justify-content: flex-end;/* จัดวางปุ่มให้ไปชิดทางด้านขวาของฟอร์ม */
+    gap: 16px;/* ระยะห่างระหว่างปุ่มยกเลิกและปุ่มบันทึก */
 }
 
+/* === 2. Button Styles (การจัดการรูปแบบปุ่ม) === */
 
+/* ปุ่มยกเลิก (Cancel Button) */
 .btn-cancel {
-    background-color: transparent;
-    color: var(--text-muted);
-    border: 1px solid var(--border-color);
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
+    background-color: transparent; /* พื้นหลังโปร่งใส */
+    color: var(--text-muted);/* สีตัวอักษรแบบไม่เด่นมาก */
+    border: 1px solid var(--border-color);/* เส้นขอบบางๆ */
+    padding: 10px 24px;/* ระยะห่างภายในปุ่ม */
+    border-radius: 8px;/* ลบมุมโค้ง */
+    font-weight: 600;/* ตัวหนังสือหนาปานกลาง */
+    cursor: pointer;/* เปลี่ยนเมาส์เป็นรูปมือ */
+    transition: all 0.2s;/* เพิ่มความนุ่มนวลเวลา Hover */
 }
 
+/* เอฟเฟกต์เมื่อเอาเมาส์ชี้ปุ่มยกเลิก */
 .btn-cancel:hover {
-    background-color: var(--background-light);
-    color: var(--text-main);
+    background-color: var(--background-light);/* เปลี่ยนพื้นหลังเป็นสีเทาอ่อน */
+    color: var(--text-main);/* เปลี่ยนสีตัวอักษรให้เข้มขึ้น */
 }
 
-
+/* ปุ่มบันทึกหรือส่งข้อมูล (Submit Button) */
 .btn-submit {
-    background-color: var(--primary);
-    color: white;
-    border: none;
-    padding: 10px 24px;
+    background-color: var(--primary);/* ใช้สีฟ้าหลักของแอป */
+    color: white;/* ตัวหนังสือสีขาว */
+    border: none;/* ไม่มีเส้นขอบ */
+    padding: 10px 24px;/* ระยะห่างภายในปุ่ม */
     border-radius: 8px;
     font-weight: 600;
-    display: flex;
+    display: flex; /* ใช้ Flexbox จัดไอคอนและตัวหนังสือให้อยู่กึ่งกลาง */
     align-items: center;
-    gap: 8px;
+    gap: 8px; /* ระยะห่างระหว่างไอคอนและข้อความในปุ่ม */
     cursor: pointer;
     transition: all 0.2s;
+    /* เพิ่มเงาด้านล่างปุ่มเพื่อให้ดูมีมิติ */
     box-shadow: 0 4px 12px rgba(10, 102, 194, 0.2);
 }
 
+/* เอฟเฟกต์เมื่อเอาเมาส์ชี้ปุ่มบันทึก */
 .btn-submit:hover {
-    background-color: #0855a3;
-    transform: translateY(-1px);
+    background-color: #0855a3;/* เปลี่ยนสีฟ้าให้เข้มขึ้น */
+    transform: translateY(-1px);/* ให้ปุ่มขยับขึ้นข้างบน 1px เพื่อจำลองการลอยตัว */
 }
 
 /* --------------------------------------
    รองรับ Dark Mode สำหรับฟอร์ม
 -------------------------------------- */
+/* ปรับสีพื้นหลังไอคอนวงกลมในโหมดมืด */
 body.dark-mode .form-header-icon .icon-circle {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.05);/* ใช้สีขาวจางๆ แทนสีฟ้าเดิม */
 }
 
+/* ปรับสีพื้นหลังและเส้นขอบของช่องกรอกข้อมูลเมื่ออยู่ในโหมดมืด */
 body.dark-mode .form-group input,
 body.dark-mode .form-group textarea {
-    background-color: #0f172a;
-    border-color: var(--border-color);
+    background-color: #0f172a;/* เปลี่ยนเป็นพื้นหลังสีน้ำเงินเข้มมาก */
+    border-color: var(--border-color);/* เส้นขอบใช้สีเทาสำหรับโหมดมืด */
 }
 
+/* เมื่อคลิกพิมพ์ในโหมดมืด ให้เปลี่ยนพื้นหลังให้สว่างขึ้นเล็กน้อยเพื่อให้ชัดเจน */
 body.dark-mode .form-group input:focus,
 body.dark-mode .form-group textarea:focus {
-    background-color: #1e293b;
+    background-color: #1e293b;/* สีพื้นหลังเมื่อ Focus */
 }
 
+/* ช่องข้อมูลที่แก้ไขไม่ได้ในโหมดมืด */
 body.dark-mode .input-readonly {
     background-color: #0f172a !important;
-    opacity: 0.6;
+    opacity: 0.6;/* ปรับความโปร่งใสลงเพื่อให้ดูจางลง */
 }
 
+/* เอฟเฟกต์ปุ่มยกเลิกในโหมดมืด */
 body.dark-mode .btn-cancel:hover {
-    background-color: #334155;
+    background-color: #334155;/* เปลี่ยนพื้นหลังเป็นสีเทาน้ำเงินเมื่อชี้ */
 }
 
 /* --------------------------------------
    รองรับหน้าจอมือถือ (Responsive)
 -------------------------------------- */
+/* คำสั่งสำหรับหน้าจอที่มีความกว้างไม่เกิน 768px (เช่น สมาร์ทโฟน) */
 @media (max-width: 768px) {
+    /* ปรับลด Padding ของการ์ดฟอร์มลงเพื่อให้มีพื้นที่พิมพ์มากขึ้น */
     .form-card {
-        padding: 20px;
+        padding: 20px;/* จากเดิม 32px เหลือ 20px */
     }
-
+/* ปรับแถวฟอร์มจาก 2 คอลัมน์ให้เหลือแค่ 1 คอลัมน์ (แสดงจากบนลงล่าง) */
     .form-row {
-        grid-template-columns: 1fr;
-        gap: 16px;
+        grid-template-columns: 1fr;/* บังคับช่องกรอกให้เต็มความกว้างแถวละ 1 ช่อง */
+        gap: 16px;/* ลดระยะห่างระหว่างช่องลง */
     }
 
+    /* สลับลำดับปุ่มในมือถือ (ให้ปุ่มยืนยันอยู่บนปุ่มยกเลิกเพื่อความสะดวกในการใช้นิ้วโป้งกด) */
     .form-actions {
-        flex-direction: column-reverse;
+        flex-direction: column-reverse;/* สลับล่างขึ้นบนและจัดแถวเป็นแนวตั้ง */
     }
-
+    /* ปรับปุ่มทุกปุ่มให้ขยายเต็มความกว้างหน้าจอมือถือ */
     .btn-cancel,
     .btn-submit {
-        width: 100%;
-        justify-content: center;
+        width: 100%; /* ขยายปุ่มให้เต็มหน้าจอ */
+        justify-content: center;/* จัดข้อความไอคอนให้อยู่กึ่งกลางปุ่มพอดี */
     }
 }
