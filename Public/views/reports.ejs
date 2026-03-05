@@ -228,9 +228,9 @@
                             <% for (let id in outstandingReport) { if(outstandingReport[id].balance > 0 || outstandingReport[id].paid > 0) { %>
                                 <tr>
                                     <td style="font-weight: 600;">
-                                        <a href="/loans" style="text-decoration: none; color: #0a66c2;">
+                                        <!-- <a href="/loans" style="text-decoration: none; color: #0a66c2;"> -->
                                             <%= outstandingReport[id].name %>
-                                        </a>
+                                        <!-- </a> -->
                                     </td>
                                     <td style="text-align: right;">฿ <%= outstandingReport[id].principal.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
                                     <td style="text-align: right; color: #28a745;">฿ <%= outstandingReport[id].paid.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
@@ -305,9 +305,9 @@
                             %>
                                 <tr>
                                     <td style="font-weight: 600;">
-                                        <a href="/savings/history/<%= id %>" style="text-decoration: none; color: #0a66c2;">
+                                        <!-- <a href="/savings/history/<%= id %>" style="text-decoration: none; color: #0a66c2;"> -->
                                             <%= savingsReport[id].name %>
-                                        </a>
+                                        <!-- </a> -->
                                     </td>
                                     <td><%= savingsReport[id].count %> ครั้ง</td>
                                     <td style="text-align: right;">฿ <%= totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
